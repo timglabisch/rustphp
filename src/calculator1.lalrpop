@@ -1,0 +1,48 @@
+use std::str::FromStr;
+use ast::{If, Expression, Block};
+
+grammar;
+
+
+pub Start: Box<If> = { If };
+
+T_IF = { "if" };
+
+T_NUMBER : String = {
+    <s:r"([0-9]+)"> => s.to_string(),
+    <s:r"([0-9]+)\.([0-9]+)"> => s.to_string()
+ };
+
+T_VAR : String = { <s:r"\$([a-zA-Z\_]+)([0-9a-zA-Z\_]*)"> => s.to_string() };
+
+If : Box<If> = {
+    <a:T_IF> <b:"("> <expression:Expression> <c:")"> <block:Block> => { Box::new(If::new(expression, block)) }
+};
+
+CompareAble = {
+    T_VAR,
+    T_NUMBER
+};
+
+Block : Box<Block> = {
+    "{}" => { Box::new(Block) },
+    ";" => { Box::new(Block) } // Empty Block
+};
+
+Expression : Box<Expression> = {
+    ExpressionMath => { Box::new(Expression) },
+    CompareAble => { Box::new(Expression) }
+};
+
+ExpressionMath : Box<Expression> = {
+    <CompareAble> <Operator> <Expression> => { Box::new(Expression) }
+};
+
+Operator = {
+    OperatorComparison,
+    OperatorMath
+};
+
+OperatorComparison = { "==", "===", "=<", "=>", "<", ">" };
+
+OperatorMath = { "+", "-", "*", "\\" };
