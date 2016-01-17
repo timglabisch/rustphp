@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use ast::{If, Expression, Block};
+use ast::{If, Expression, Block, Variable};
 
 grammar;
 
@@ -8,19 +8,27 @@ pub Start: Box<If> = { If };
 
 T_IF = { "if" };
 
-T_NUMBER : String = {
-    <s:r"([0-9]+)"> => s.to_string(),
-    <s:r"([0-9]+)\.([0-9]+)"> => s.to_string()
+T_NUMBER : Box<String> = {
+    <s:r"([0-9]+)"> => Box::new(s.to_string()),
+    <s:r"([0-9]+)\.([0-9]+)"> => Box::new(s.to_string())
  };
 
-T_VAR : String = { <s:r"\$([a-zA-Z\_]+)([0-9a-zA-Z\_]*)"> => s.to_string() };
+
+T_VARIABLE : Box<String> = { <s:r"\$([a-zA-Z\_]+)([0-9a-zA-Z\_]*)"> => Box::new(s.to_string()) };
 
 If : Box<If> = {
     <a:T_IF> <b:"("> <expression:Expression> <c:")"> <block:Block> => { Box::new(If::new(expression, block)) }
 };
 
+
+pub simple_variable : Box<Variable> = {
+    <var:T_VARIABLE> => { Box::new(Variable::Identifier(var)) },
+    <a:"$"> <b:"{"> <var:simple_variable> <c:"}"> => { Box::new(Variable::Variable(var)) },
+    <a:"$"> <var:simple_variable> => { Box::new(Variable::Variable(var)) }
+};
+
 CompareAble = {
-    T_VAR,
+    T_VARIABLE,
     T_NUMBER
 };
 

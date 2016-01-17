@@ -15,3 +15,9 @@ pub struct Expression;
 
 #[derive(Debug)]
 pub struct Block;
+
+#[derive(Debug)]
+pub enum Variable {
+        Variable(Box<Variable>),
+        Identifier(Box<String>)
+}
