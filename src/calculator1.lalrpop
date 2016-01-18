@@ -4,8 +4,6 @@ use ast::{If, Expression, Block, Variable};
 grammar;
 
 
-pub Start: Box<If> = { If };
-
 
 T_NUMBER : Box<String> = {
     <s:r"([0-9]+)"> => Box::new(s.to_string()),
@@ -140,10 +138,6 @@ T_COALESCE = { "??" };
 T_POW = { "**" };
 T_POW_EQUAL = { "**=" };
 
-If : Box<If> = {
-    <a:T_IF> <b:"("> <expression:Expression> <c:")"> <block:Block> => { Box::new(If::new(expression, block)) }
-};
-
 
 pub variable : Box<Variable> = {
     simple_variable
@@ -155,23 +149,23 @@ pub variable : Box<Variable> = {
 };
 
 pub simple_variable : Box<Variable> = {
-    <var:T_VARIABLE> => { Box::new(Variable::Identifier(var)) },
-    <a:"$"> <b:"{"> <var:simple_variable> <c:"}"> => { Box::new(Variable::Variable(var)) }, // TODO, use EXPR here
-    <a:"$"> <var:simple_variable> => { Box::new(Variable::Variable(var)) }
+    <a:"${"> <expr:expr> <c:"}"> => { Box::new(Variable::Expression(expr)) },
+    <a:"$"> <var:simple_variable> => { Box::new(Variable::Variable(var)) },
+    <var:T_VARIABLE> => { Box::new(Variable::Identifier(var)) }
 };
 
 
-pub expr = {
-    variable
-    // |	expr_without_variable		{ $$ = $1; }
+pub expr : Box<Expression> = {
+    <var:variable> => { Box::new(Expression::Variable(var)) },
+    <expr:expr_without_variable> => { expr }
 };
 
-expr_without_variable = {
+expr_without_variable : Box<Expression> = {
 //    <"list"> <"("> assignment_list <")"> = expr,
 //    |	variable '=' expr
 //    |	variable '=' '&' variable
 //	|	T_CLONE expr { $$ = zend_ast_create(ZEND_AST_CLONE, $2); }
-	variable T_PLUS_EQUAL expr
+	<v1:variable> <a:T_PLUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new("+=".to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
 //	|	variable T_MINUS_EQUAL expr
 //	|	variable T_MUL_EQUAL expr
 //	|	variable T_POW_EQUAL expr
@@ -243,33 +237,3 @@ expr_without_variable = {
 //	|	function returns_ref '(' parameter_list ')' lexical_vars return_type
 //	|	T_STATIC function returns_ref '(' parameter_list ')' lexical_vars
 };
-
-
-CompareAble = {
-    T_VARIABLE,
-    T_NUMBER
-};
-
-Block : Box<Block> = {
-    "{}" => { Box::new(Block) },
-    ";" => { Box::new(Block) } // Empty Block
-};
-
-Expression : Box<Expression> = {
-    ExpressionMath => { Box::new(Expression) },
-    CompareAble => { Box::new(Expression) }
-};
-
-ExpressionMath : Box<Expression> = {
-    <CompareAble> <Operator> <Expression> => { Box::new(Expression) }
-};
-
-Operator = {
-    OperatorComparison,
-    OperatorMath
-};
-
-OperatorComparison = { "==", "===", "=<", "=>", "<", ">" };
-
-OperatorMath = { "+", "-", "*", "\\" };
-//

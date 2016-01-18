@@ -10,14 +10,20 @@ impl If {
     }
 }
 
-#[derive(Debug)]
-pub struct Expression;
 
 #[derive(Debug)]
 pub struct Block;
 
 #[derive(Debug)]
 pub enum Variable {
-        Variable(Box<Variable>),
-        Identifier(Box<String>)
+    Variable(Box<Variable>),
+    Identifier(Box<String>),
+    Expression(Box<Expression>)
+}
+
+#[derive(Debug)]
+pub enum Expression {
+    Variable(Box<Variable>),
+    Expression(Box<Expression>),
+    AssignOp { op: Box<String>, expr_left: Box<Expression>, expr_right: Box<Expression> }
 }
