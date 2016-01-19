@@ -17,7 +17,7 @@ pub struct Block;
 #[derive(Debug)]
 pub enum Variable {
     Variable(Box<Variable>),
-    Identifier(Box<String>),
+    Identifier(String),
     Expression(Box<Expression>)
 }
 
@@ -25,5 +25,6 @@ pub enum Variable {
 pub enum Expression {
     Variable(Box<Variable>),
     Expression(Box<Expression>),
-    AssignOp { op: Box<String>, expr_left: Box<Expression>, expr_right: Box<Expression> }
+    Increment(Box<Variable>),
+    AssignOp { op: String, var: Box<Variable>, expr_right: Box<Expression> }
 }

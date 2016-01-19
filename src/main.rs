@@ -35,4 +35,6 @@ fn main() {
         assert!(calculator1::parse_expr(v).is_ok());
     }
 
+    println!("{:?}", calculator1::parse_expr("$v++"));
+
 }
