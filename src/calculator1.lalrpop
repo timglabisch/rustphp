@@ -177,10 +177,10 @@ expr_without_variable : Box<Expression> = {
     <v1:variable> <op:T_XOR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_SL_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_SR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-	<v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1)) }
-//	|	T_INC variable { $$ = zend_ast_create(ZEND_AST_PRE_INC, $2); }
-//	|	variable T_DEC { $$ = zend_ast_create(ZEND_AST_POST_DEC, $1); }
-//	|	T_DEC variable { $$ = zend_ast_create(ZEND_AST_PRE_DEC, $2); }
+	<v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
+    <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
+    <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
+    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) }
 //	|	expr T_BOOLEAN_OR expr
 //	|	expr T_BOOLEAN_AND expr
 //	|	expr T_LOGICAL_OR expr

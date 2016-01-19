@@ -28,7 +28,11 @@ fn main() {
         "$a |= $b",
         "$a ^= $b",
         "$a <<= $b",
-        "$a >>= $b"
+        "$a >>= $b",
+        "$v++",
+        "$v--",
+        "--$v",
+        "++$v"
     ];
 
     for v in expr_without_variable {
