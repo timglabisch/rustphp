@@ -17,6 +17,22 @@ fn main() {
         assert!(calculator1::parse_simple_variable(v).is_ok());
     }
 
-    println!("{:?}", calculator1::parse_expr("$a += $b"));
+    let expr_without_variable = vec![
+        "$a += $b",
+        "$a -= $b",
+        "$a *= $b",
+        "$a /= $b",
+        "$a .= $b",
+        "$a %= $b",
+        "$a &= $b",
+        "$a |= $b",
+        "$a ^= $b",
+        "$a <<= $b",
+        "$a >>= $b"
+    ];
+
+    for v in expr_without_variable {
+        assert!(calculator1::parse_expr(v).is_ok());
+    }
 
 }

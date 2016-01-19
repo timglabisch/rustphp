@@ -174,19 +174,85 @@ mod __parse__expr {
 
     // State 0
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   __expr = (*) expr [EOF]
     //   expr = (*) expr_without_variable [EOF]
     //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
     //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //
     //   "$" -> Shift(S6)
     //   "${" -> Shift(S7)
@@ -263,10 +329,32 @@ mod __parse__expr {
 
     // State 1
     //   simple_variable = T_VARIABLE (*) [EOF]
+    //   simple_variable = T_VARIABLE (*) ["%="]
+    //   simple_variable = T_VARIABLE (*) ["&="]
+    //   simple_variable = T_VARIABLE (*) ["**="]
+    //   simple_variable = T_VARIABLE (*) ["*="]
     //   simple_variable = T_VARIABLE (*) ["+="]
+    //   simple_variable = T_VARIABLE (*) ["-="]
+    //   simple_variable = T_VARIABLE (*) [".="]
+    //   simple_variable = T_VARIABLE (*) ["/="]
+    //   simple_variable = T_VARIABLE (*) ["<<="]
+    //   simple_variable = T_VARIABLE (*) [">>="]
+    //   simple_variable = T_VARIABLE (*) ["^="]
+    //   simple_variable = T_VARIABLE (*) ["|="]
     //
     //   EOF -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "%=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "&=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "**=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "*=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "+=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "-=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ".=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "/=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "<<=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ">>=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "^=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "|=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //
     pub fn __state1<
         'input,
@@ -282,7 +370,18 @@ mod __parse__expr {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
             None |
-            Some((_, (18, _), _)) => {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
+            Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action133(input, __sym0);
                 return Ok((__lookbehind, __lookahead, __Nonterminal::simple__variable(__nt)));
@@ -362,10 +461,32 @@ mod __parse__expr {
 
     // State 4
     //   variable = simple_variable (*) [EOF]
+    //   variable = simple_variable (*) ["%="]
+    //   variable = simple_variable (*) ["&="]
+    //   variable = simple_variable (*) ["**="]
+    //   variable = simple_variable (*) ["*="]
     //   variable = simple_variable (*) ["+="]
+    //   variable = simple_variable (*) ["-="]
+    //   variable = simple_variable (*) [".="]
+    //   variable = simple_variable (*) ["/="]
+    //   variable = simple_variable (*) ["<<="]
+    //   variable = simple_variable (*) [">>="]
+    //   variable = simple_variable (*) ["^="]
+    //   variable = simple_variable (*) ["|="]
     //
     //   EOF -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "%=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "&=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "**=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "*=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "+=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "-=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ".=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "/=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "<<=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ">>=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "^=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "|=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //
     pub fn __state4<
         'input,
@@ -381,7 +502,18 @@ mod __parse__expr {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
             None |
-            Some((_, (18, _), _)) => {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
+            Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action130(input, __sym0);
                 return Ok((__lookbehind, __lookahead, __Nonterminal::variable(__nt)));
@@ -396,16 +528,82 @@ mod __parse__expr {
     }
 
     // State 5
+    //   T_AND_EQUAL = (*) "&=" ["$"]
+    //   T_AND_EQUAL = (*) "&=" ["${"]
+    //   T_AND_EQUAL = (*) "&=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_CONCAT_EQUAL = (*) ".=" ["$"]
+    //   T_CONCAT_EQUAL = (*) ".=" ["${"]
+    //   T_CONCAT_EQUAL = (*) ".=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_DIV_EQUAL = (*) "/=" ["$"]
+    //   T_DIV_EQUAL = (*) "/=" ["${"]
+    //   T_DIV_EQUAL = (*) "/=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MINUS_EQUAL = (*) "-=" ["$"]
+    //   T_MINUS_EQUAL = (*) "-=" ["${"]
+    //   T_MINUS_EQUAL = (*) "-=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MOD_EQUAL = (*) "%=" ["$"]
+    //   T_MOD_EQUAL = (*) "%=" ["${"]
+    //   T_MOD_EQUAL = (*) "%=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MUL_EQUAL = (*) "*=" ["$"]
+    //   T_MUL_EQUAL = (*) "*=" ["${"]
+    //   T_MUL_EQUAL = (*) "*=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_OR_EQUAL = (*) "|=" ["$"]
+    //   T_OR_EQUAL = (*) "|=" ["${"]
+    //   T_OR_EQUAL = (*) "|=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   T_PLUS_EQUAL = (*) "+=" ["$"]
     //   T_PLUS_EQUAL = (*) "+=" ["${"]
     //   T_PLUS_EQUAL = (*) "+=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_POW_EQUAL = (*) "**=" ["$"]
+    //   T_POW_EQUAL = (*) "**=" ["${"]
+    //   T_POW_EQUAL = (*) "**=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SL_EQUAL = (*) "<<=" ["$"]
+    //   T_SL_EQUAL = (*) "<<=" ["${"]
+    //   T_SL_EQUAL = (*) "<<=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SR_EQUAL = (*) ">>=" ["$"]
+    //   T_SR_EQUAL = (*) ">>=" ["${"]
+    //   T_SR_EQUAL = (*) ">>=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_XOR_EQUAL = (*) "^=" ["$"]
+    //   T_XOR_EQUAL = (*) "^=" ["${"]
+    //   T_XOR_EQUAL = (*) "^=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   expr = variable (*) [EOF]
+    //   expr_without_variable = variable (*) T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_OR_EQUAL expr [EOF]
     //   expr_without_variable = variable (*) T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = variable (*) T_XOR_EQUAL expr [EOF]
     //
     //   EOF -> Reduce(expr = variable => Call(ActionFn(134));)
-    //   "+=" -> Shift(S10)
+    //   "%=" -> Shift(S21)
+    //   "&=" -> Shift(S22)
+    //   "**=" -> Shift(S23)
+    //   "*=" -> Shift(S24)
+    //   "+=" -> Shift(S25)
+    //   "-=" -> Shift(S26)
+    //   ".=" -> Shift(S27)
+    //   "/=" -> Shift(S28)
+    //   "<<=" -> Shift(S29)
+    //   ">>=" -> Shift(S30)
+    //   "^=" -> Shift(S31)
+    //   "|=" -> Shift(S32)
     //
-    //   T_PLUS_EQUAL -> S9
+    //   T_AND_EQUAL -> S9
+    //   T_CONCAT_EQUAL -> S10
+    //   T_DIV_EQUAL -> S11
+    //   T_MINUS_EQUAL -> S12
+    //   T_MOD_EQUAL -> S13
+    //   T_MUL_EQUAL -> S14
+    //   T_OR_EQUAL -> S15
+    //   T_PLUS_EQUAL -> S16
+    //   T_POW_EQUAL -> S17
+    //   T_SL_EQUAL -> S18
+    //   T_SR_EQUAL -> S19
+    //   T_XOR_EQUAL -> S20
     pub fn __state5<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -419,10 +617,65 @@ mod __parse__expr {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state21(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (6, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state22(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (15, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state23(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (16, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state24(input, __lookbehind, __tokens, __sym1));
+            }
             Some((_, (18, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state10(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state25(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (20, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state26(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (23, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state27(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (24, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state28(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (27, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state29(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (35, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state30(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (38, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state31(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (123, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state32(input, __lookbehind, __tokens, __sym1));
             }
             None => {
                 let __sym0 = __sym0.take().unwrap();
@@ -439,9 +692,53 @@ mod __parse__expr {
         while __sym0.is_some() {
             let (__lookbehind, __lookahead, __nt) = __result;
             match __nt {
-                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                __Nonterminal::T__AND__EQUAL(__nt) => {
                     let __sym1 = &mut Some(__nt);
                     __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__CONCAT__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__DIV__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MINUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MOD__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state13(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MUL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state14(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__OR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state15(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state16(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__POW__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state17(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state18(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state19(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__XOR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -453,22 +750,77 @@ mod __parse__expr {
 
     // State 6
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = "$" (*) simple_variable [EOF]
+    //   simple_variable = "$" (*) simple_variable ["%="]
+    //   simple_variable = "$" (*) simple_variable ["&="]
+    //   simple_variable = "$" (*) simple_variable ["**="]
+    //   simple_variable = "$" (*) simple_variable ["*="]
     //   simple_variable = "$" (*) simple_variable ["+="]
+    //   simple_variable = "$" (*) simple_variable ["-="]
+    //   simple_variable = "$" (*) simple_variable [".="]
+    //   simple_variable = "$" (*) simple_variable ["/="]
+    //   simple_variable = "$" (*) simple_variable ["<<="]
+    //   simple_variable = "$" (*) simple_variable [">>="]
+    //   simple_variable = "$" (*) simple_variable ["^="]
+    //   simple_variable = "$" (*) simple_variable ["|="]
     //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //
     //   "$" -> Shift(S6)
     //   "${" -> Shift(S7)
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
     //
     //   T_VARIABLE -> S1
-    //   simple_variable -> S11
+    //   simple_variable -> S33
     pub fn __state6<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -517,7 +869,7 @@ mod __parse__expr {
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state33(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -528,31 +880,108 @@ mod __parse__expr {
     }
 
     // State 7
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //   simple_variable = "${" (*) expr "}" [EOF]
+    //   simple_variable = "${" (*) expr "}" ["%="]
+    //   simple_variable = "${" (*) expr "}" ["&="]
+    //   simple_variable = "${" (*) expr "}" ["**="]
+    //   simple_variable = "${" (*) expr "}" ["*="]
     //   simple_variable = "${" (*) expr "}" ["+="]
+    //   simple_variable = "${" (*) expr "}" ["-="]
+    //   simple_variable = "${" (*) expr "}" [".="]
+    //   simple_variable = "${" (*) expr "}" ["/="]
+    //   simple_variable = "${" (*) expr "}" ["<<="]
+    //   simple_variable = "${" (*) expr "}" [">>="]
+    //   simple_variable = "${" (*) expr "}" ["^="]
+    //   simple_variable = "${" (*) expr "}" ["|="]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
-    //   "$" -> Shift(S17)
-    //   "${" -> Shift(S18)
-    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S19)
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
     //
-    //   T_VARIABLE -> S12
-    //   expr -> S13
-    //   expr_without_variable -> S14
-    //   simple_variable -> S15
-    //   variable -> S16
+    //   T_VARIABLE -> S34
+    //   expr -> S35
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
     pub fn __state7<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -573,17 +1002,17 @@ mod __parse__expr {
             Some((_, (2, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state17(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (3, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state18(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (128, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state19(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym1));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -597,23 +1026,23 @@ mod __parse__expr {
             match __nt {
                 __Nonterminal::T__VARIABLE(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state13(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state35(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state14(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state15(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state16(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -625,10 +1054,32 @@ mod __parse__expr {
 
     // State 8
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [EOF]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["%="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["&="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["**="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["*="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["+="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["-="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [".="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["/="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["<<="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [">>="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["^="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["|="]
     //
     //   EOF -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "%=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "&=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "**=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "*=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "+=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "-=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ".=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "/=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "<<=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ">>=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "^=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "|=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //
     pub fn __state8<
         'input,
@@ -648,7 +1099,18 @@ mod __parse__expr {
         };
         match __lookahead {
             None |
-            Some((_, (18, _), _)) => {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
+            Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action5(input, __sym0);
                 return Ok((__lookbehind, __lookahead, __Nonterminal::T__VARIABLE(__nt)));
@@ -664,26 +1126,92 @@ mod __parse__expr {
 
     // State 9
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   expr = (*) expr_without_variable [EOF]
     //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_AND_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
-    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
     //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //
     //   "$" -> Shift(S6)
     //   "${" -> Shift(S7)
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
     //
     //   T_VARIABLE -> S1
-    //   expr -> S20
+    //   expr -> S42
     //   expr_without_variable -> S3
     //   simple_variable -> S4
     //   variable -> S5
@@ -732,7 +1260,7 @@ mod __parse__expr {
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                    __result = try!(__state42(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
@@ -755,6 +1283,1912 @@ mod __parse__expr {
     }
 
     // State 10
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_CONCAT_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S43
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state10<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state43(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 11
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_DIV_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S44
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state11<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state44(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 12
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_MINUS_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S45
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state12<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state45(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 13
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_MOD_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S46
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state13<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state46(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 14
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_MUL_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S47
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state14<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state47(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 15
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_OR_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S48
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state15<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state48(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 16
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S49
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state16<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state49(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 17
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_POW_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S50
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state17<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state50(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 18
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_SL_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S51
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state18<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state51(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 19
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_SR_EQUAL (*) expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S52
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state19<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state52(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 20
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [EOF]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   expr = (*) expr_without_variable [EOF]
+    //   expr = (*) variable [EOF]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr [EOF]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr [EOF]
+    //   expr_without_variable = variable T_XOR_EQUAL (*) expr [EOF]
+    //   simple_variable = (*) T_VARIABLE [EOF]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) "$" simple_variable [EOF]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "${" expr "}" [EOF]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   variable = (*) simple_variable [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //
+    //   "$" -> Shift(S6)
+    //   "${" -> Shift(S7)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S8)
+    //
+    //   T_VARIABLE -> S1
+    //   expr -> S53
+    //   expr_without_variable -> S3
+    //   simple_variable -> S4
+    //   variable -> S5
+    pub fn __state20<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state6(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state7(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state8(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state1(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state53(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state3(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state4(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state5(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 21
+    //   T_MOD_EQUAL = "%=" (*) ["$"]
+    //   T_MOD_EQUAL = "%=" (*) ["${"]
+    //   T_MOD_EQUAL = "%=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   "${" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //
+    pub fn __state21<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action22(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MOD__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 22
+    //   T_AND_EQUAL = "&=" (*) ["$"]
+    //   T_AND_EQUAL = "&=" (*) ["${"]
+    //   T_AND_EQUAL = "&=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   "${" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //
+    pub fn __state22<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action23(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__AND__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 23
+    //   T_POW_EQUAL = "**=" (*) ["$"]
+    //   T_POW_EQUAL = "**=" (*) ["${"]
+    //   T_POW_EQUAL = "**=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   "${" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //
+    pub fn __state23<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action129(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__POW__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 24
+    //   T_MUL_EQUAL = "*=" (*) ["$"]
+    //   T_MUL_EQUAL = "*=" (*) ["${"]
+    //   T_MUL_EQUAL = "*=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   "${" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //
+    pub fn __state24<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action19(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MUL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 25
     //   T_PLUS_EQUAL = "+=" (*) ["$"]
     //   T_PLUS_EQUAL = "+=" (*) ["${"]
     //   T_PLUS_EQUAL = "+=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
@@ -763,7 +3197,7 @@ mod __parse__expr {
     //   "${" -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //
-    pub fn __state10<
+    pub fn __state25<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -796,14 +3230,330 @@ mod __parse__expr {
         }
     }
 
-    // State 11
+    // State 26
+    //   T_MINUS_EQUAL = "-=" (*) ["$"]
+    //   T_MINUS_EQUAL = "-=" (*) ["${"]
+    //   T_MINUS_EQUAL = "-=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   "${" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //
+    pub fn __state26<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action18(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MINUS__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 27
+    //   T_CONCAT_EQUAL = ".=" (*) ["$"]
+    //   T_CONCAT_EQUAL = ".=" (*) ["${"]
+    //   T_CONCAT_EQUAL = ".=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   "${" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //
+    pub fn __state27<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action21(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__CONCAT__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 28
+    //   T_DIV_EQUAL = "/=" (*) ["$"]
+    //   T_DIV_EQUAL = "/=" (*) ["${"]
+    //   T_DIV_EQUAL = "/=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   "${" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //
+    pub fn __state28<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action20(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__DIV__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 29
+    //   T_SL_EQUAL = "<<=" (*) ["$"]
+    //   T_SL_EQUAL = "<<=" (*) ["${"]
+    //   T_SL_EQUAL = "<<=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   "${" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //
+    pub fn __state29<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action26(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 30
+    //   T_SR_EQUAL = ">>=" (*) ["$"]
+    //   T_SR_EQUAL = ">>=" (*) ["${"]
+    //   T_SR_EQUAL = ">>=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   "${" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //
+    pub fn __state30<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action27(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 31
+    //   T_XOR_EQUAL = "^=" (*) ["$"]
+    //   T_XOR_EQUAL = "^=" (*) ["${"]
+    //   T_XOR_EQUAL = "^=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   "${" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //
+    pub fn __state31<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action25(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__XOR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 32
+    //   T_OR_EQUAL = "|=" (*) ["$"]
+    //   T_OR_EQUAL = "|=" (*) ["${"]
+    //   T_OR_EQUAL = "|=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   "${" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //
+    pub fn __state32<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action24(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__OR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 33
     //   simple_variable = "$" simple_variable (*) [EOF]
+    //   simple_variable = "$" simple_variable (*) ["%="]
+    //   simple_variable = "$" simple_variable (*) ["&="]
+    //   simple_variable = "$" simple_variable (*) ["**="]
+    //   simple_variable = "$" simple_variable (*) ["*="]
     //   simple_variable = "$" simple_variable (*) ["+="]
+    //   simple_variable = "$" simple_variable (*) ["-="]
+    //   simple_variable = "$" simple_variable (*) [".="]
+    //   simple_variable = "$" simple_variable (*) ["/="]
+    //   simple_variable = "$" simple_variable (*) ["<<="]
+    //   simple_variable = "$" simple_variable (*) [">>="]
+    //   simple_variable = "$" simple_variable (*) ["^="]
+    //   simple_variable = "$" simple_variable (*) ["|="]
     //
     //   EOF -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "%=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "&=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "**=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "*=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "+=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "-=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ".=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "/=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "<<=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ">>=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "^=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "|=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //
-    pub fn __state11<
+    pub fn __state33<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -818,7 +3568,18 @@ mod __parse__expr {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
             None |
-            Some((_, (18, _), _)) => {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
+            Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
                 let __nt = super::__action132(input, __sym0, __sym1);
@@ -833,14 +3594,36 @@ mod __parse__expr {
         }
     }
 
-    // State 12
+    // State 34
+    //   simple_variable = T_VARIABLE (*) ["%="]
+    //   simple_variable = T_VARIABLE (*) ["&="]
+    //   simple_variable = T_VARIABLE (*) ["**="]
+    //   simple_variable = T_VARIABLE (*) ["*="]
     //   simple_variable = T_VARIABLE (*) ["+="]
+    //   simple_variable = T_VARIABLE (*) ["-="]
+    //   simple_variable = T_VARIABLE (*) [".="]
+    //   simple_variable = T_VARIABLE (*) ["/="]
+    //   simple_variable = T_VARIABLE (*) ["<<="]
+    //   simple_variable = T_VARIABLE (*) [">>="]
+    //   simple_variable = T_VARIABLE (*) ["^="]
+    //   simple_variable = T_VARIABLE (*) ["|="]
     //   simple_variable = T_VARIABLE (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "&=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "**=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "*=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "+=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "-=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ".=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "/=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "<<=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ">>=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "^=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "|=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "}" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //
-    pub fn __state12<
+    pub fn __state34<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -853,7 +3636,18 @@ mod __parse__expr {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action133(input, __sym0);
@@ -868,13 +3662,24 @@ mod __parse__expr {
         }
     }
 
-    // State 13
+    // State 35
     //   simple_variable = "${" expr (*) "}" [EOF]
+    //   simple_variable = "${" expr (*) "}" ["%="]
+    //   simple_variable = "${" expr (*) "}" ["&="]
+    //   simple_variable = "${" expr (*) "}" ["**="]
+    //   simple_variable = "${" expr (*) "}" ["*="]
     //   simple_variable = "${" expr (*) "}" ["+="]
+    //   simple_variable = "${" expr (*) "}" ["-="]
+    //   simple_variable = "${" expr (*) "}" [".="]
+    //   simple_variable = "${" expr (*) "}" ["/="]
+    //   simple_variable = "${" expr (*) "}" ["<<="]
+    //   simple_variable = "${" expr (*) "}" [">>="]
+    //   simple_variable = "${" expr (*) "}" ["^="]
+    //   simple_variable = "${" expr (*) "}" ["|="]
     //
-    //   "}" -> Shift(S21)
+    //   "}" -> Shift(S54)
     //
-    pub fn __state13<
+    pub fn __state35<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -891,7 +3696,7 @@ mod __parse__expr {
             Some((_, (125, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state21(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
+                __result = try!(__state54(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -903,12 +3708,12 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 14
+    // State 36
     //   expr = expr_without_variable (*) ["}"]
     //
     //   "}" -> Reduce(expr = expr_without_variable => Call(ActionFn(135));)
     //
-    pub fn __state14<
+    pub fn __state36<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -935,14 +3740,36 @@ mod __parse__expr {
         }
     }
 
-    // State 15
+    // State 37
+    //   variable = simple_variable (*) ["%="]
+    //   variable = simple_variable (*) ["&="]
+    //   variable = simple_variable (*) ["**="]
+    //   variable = simple_variable (*) ["*="]
     //   variable = simple_variable (*) ["+="]
+    //   variable = simple_variable (*) ["-="]
+    //   variable = simple_variable (*) [".="]
+    //   variable = simple_variable (*) ["/="]
+    //   variable = simple_variable (*) ["<<="]
+    //   variable = simple_variable (*) [">>="]
+    //   variable = simple_variable (*) ["^="]
+    //   variable = simple_variable (*) ["|="]
     //   variable = simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "&=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "**=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "*=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "+=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "-=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ".=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "/=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "<<=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ">>=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "^=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "|=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "}" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //
-    pub fn __state15<
+    pub fn __state37<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -955,7 +3782,18 @@ mod __parse__expr {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action130(input, __sym0);
@@ -970,18 +3808,84 @@ mod __parse__expr {
         }
     }
 
-    // State 16
+    // State 38
+    //   T_AND_EQUAL = (*) "&=" ["$"]
+    //   T_AND_EQUAL = (*) "&=" ["${"]
+    //   T_AND_EQUAL = (*) "&=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_CONCAT_EQUAL = (*) ".=" ["$"]
+    //   T_CONCAT_EQUAL = (*) ".=" ["${"]
+    //   T_CONCAT_EQUAL = (*) ".=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_DIV_EQUAL = (*) "/=" ["$"]
+    //   T_DIV_EQUAL = (*) "/=" ["${"]
+    //   T_DIV_EQUAL = (*) "/=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MINUS_EQUAL = (*) "-=" ["$"]
+    //   T_MINUS_EQUAL = (*) "-=" ["${"]
+    //   T_MINUS_EQUAL = (*) "-=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MOD_EQUAL = (*) "%=" ["$"]
+    //   T_MOD_EQUAL = (*) "%=" ["${"]
+    //   T_MOD_EQUAL = (*) "%=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MUL_EQUAL = (*) "*=" ["$"]
+    //   T_MUL_EQUAL = (*) "*=" ["${"]
+    //   T_MUL_EQUAL = (*) "*=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_OR_EQUAL = (*) "|=" ["$"]
+    //   T_OR_EQUAL = (*) "|=" ["${"]
+    //   T_OR_EQUAL = (*) "|=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   T_PLUS_EQUAL = (*) "+=" ["$"]
     //   T_PLUS_EQUAL = (*) "+=" ["${"]
     //   T_PLUS_EQUAL = (*) "+=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_POW_EQUAL = (*) "**=" ["$"]
+    //   T_POW_EQUAL = (*) "**=" ["${"]
+    //   T_POW_EQUAL = (*) "**=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SL_EQUAL = (*) "<<=" ["$"]
+    //   T_SL_EQUAL = (*) "<<=" ["${"]
+    //   T_SL_EQUAL = (*) "<<=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SR_EQUAL = (*) ">>=" ["$"]
+    //   T_SR_EQUAL = (*) ">>=" ["${"]
+    //   T_SR_EQUAL = (*) ">>=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_XOR_EQUAL = (*) "^=" ["$"]
+    //   T_XOR_EQUAL = (*) "^=" ["${"]
+    //   T_XOR_EQUAL = (*) "^=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   expr = variable (*) ["}"]
+    //   expr_without_variable = variable (*) T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_OR_EQUAL expr ["}"]
     //   expr_without_variable = variable (*) T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_XOR_EQUAL expr ["}"]
     //
-    //   "+=" -> Shift(S10)
+    //   "%=" -> Shift(S21)
+    //   "&=" -> Shift(S22)
+    //   "**=" -> Shift(S23)
+    //   "*=" -> Shift(S24)
+    //   "+=" -> Shift(S25)
+    //   "-=" -> Shift(S26)
+    //   ".=" -> Shift(S27)
+    //   "/=" -> Shift(S28)
+    //   "<<=" -> Shift(S29)
+    //   ">>=" -> Shift(S30)
+    //   "^=" -> Shift(S31)
+    //   "|=" -> Shift(S32)
     //   "}" -> Reduce(expr = variable => Call(ActionFn(134));)
     //
-    //   T_PLUS_EQUAL -> S22
-    pub fn __state16<
+    //   T_AND_EQUAL -> S55
+    //   T_CONCAT_EQUAL -> S56
+    //   T_DIV_EQUAL -> S57
+    //   T_MINUS_EQUAL -> S58
+    //   T_MOD_EQUAL -> S59
+    //   T_MUL_EQUAL -> S60
+    //   T_OR_EQUAL -> S61
+    //   T_PLUS_EQUAL -> S62
+    //   T_POW_EQUAL -> S63
+    //   T_SL_EQUAL -> S64
+    //   T_SR_EQUAL -> S65
+    //   T_XOR_EQUAL -> S66
+    pub fn __state38<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -994,10 +3898,65 @@ mod __parse__expr {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state21(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (6, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state22(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (15, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state23(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (16, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state24(input, __lookbehind, __tokens, __sym1));
+            }
             Some((_, (18, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state10(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state25(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (20, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state26(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (23, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state27(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (24, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state28(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (27, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state29(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (35, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state30(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (38, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state31(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (123, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state32(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
@@ -1014,9 +3973,53 @@ mod __parse__expr {
         while __sym0.is_some() {
             let (__lookbehind, __lookahead, __nt) = __result;
             match __nt {
+                __Nonterminal::T__AND__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state55(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__CONCAT__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state56(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__DIV__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state57(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MINUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state58(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MOD__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state59(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MUL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state60(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__OR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state61(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
                 __Nonterminal::T__PLUS__EQUAL(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state22(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state62(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__POW__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state63(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state64(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state65(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__XOR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state66(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -1026,25 +4029,80 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 17
+    // State 39
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = "$" (*) simple_variable ["%="]
+    //   simple_variable = "$" (*) simple_variable ["&="]
+    //   simple_variable = "$" (*) simple_variable ["**="]
+    //   simple_variable = "$" (*) simple_variable ["*="]
     //   simple_variable = "$" (*) simple_variable ["+="]
+    //   simple_variable = "$" (*) simple_variable ["-="]
+    //   simple_variable = "$" (*) simple_variable [".="]
+    //   simple_variable = "$" (*) simple_variable ["/="]
+    //   simple_variable = "$" (*) simple_variable ["<<="]
+    //   simple_variable = "$" (*) simple_variable [">>="]
+    //   simple_variable = "$" (*) simple_variable ["^="]
+    //   simple_variable = "$" (*) simple_variable ["|="]
     //   simple_variable = "$" (*) simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //
-    //   "$" -> Shift(S17)
-    //   "${" -> Shift(S18)
-    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S19)
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
     //
-    //   T_VARIABLE -> S12
-    //   simple_variable -> S23
-    pub fn __state17<
+    //   T_VARIABLE -> S34
+    //   simple_variable -> S67
+    pub fn __state39<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1064,17 +4122,17 @@ mod __parse__expr {
             Some((_, (2, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state17(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (3, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state18(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (128, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state19(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym1));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -1088,11 +4146,11 @@ mod __parse__expr {
             match __nt {
                 __Nonterminal::T__VARIABLE(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state23(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state67(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -1102,33 +4160,110 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 18
+    // State 40
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   simple_variable = "${" (*) expr "}" ["%="]
+    //   simple_variable = "${" (*) expr "}" ["&="]
+    //   simple_variable = "${" (*) expr "}" ["**="]
+    //   simple_variable = "${" (*) expr "}" ["*="]
     //   simple_variable = "${" (*) expr "}" ["+="]
+    //   simple_variable = "${" (*) expr "}" ["-="]
+    //   simple_variable = "${" (*) expr "}" [".="]
+    //   simple_variable = "${" (*) expr "}" ["/="]
+    //   simple_variable = "${" (*) expr "}" ["<<="]
+    //   simple_variable = "${" (*) expr "}" [">>="]
+    //   simple_variable = "${" (*) expr "}" ["^="]
+    //   simple_variable = "${" (*) expr "}" ["|="]
     //   simple_variable = "${" (*) expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
-    //   "$" -> Shift(S17)
-    //   "${" -> Shift(S18)
-    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S19)
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
     //
-    //   T_VARIABLE -> S12
-    //   expr -> S24
-    //   expr_without_variable -> S14
-    //   simple_variable -> S15
-    //   variable -> S16
-    pub fn __state18<
+    //   T_VARIABLE -> S34
+    //   expr -> S68
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state40<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1148,17 +4283,17 @@ mod __parse__expr {
             Some((_, (2, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state17(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (3, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state18(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (128, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state19(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym1));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -1172,23 +4307,23 @@ mod __parse__expr {
             match __nt {
                 __Nonterminal::T__VARIABLE(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state24(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state68(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state14(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state15(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 __Nonterminal::variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state16(input, __lookbehind, __tokens, __lookahead, __sym1));
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -1198,14 +4333,36 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 19
+    // State 41
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["%="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["&="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["**="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["*="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["+="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["-="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [".="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["/="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["<<="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [">>="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["^="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["|="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["}"]
     //
+    //   "%=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "&=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "**=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "*=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "+=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "-=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ".=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "/=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "<<=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ">>=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "^=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "|=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "}" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //
-    pub fn __state19<
+    pub fn __state41<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1222,7 +4379,18 @@ mod __parse__expr {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action5(input, __sym0);
@@ -1237,12 +4405,264 @@ mod __parse__expr {
         }
     }
 
-    // State 20
+    // State 42
+    //   expr_without_variable = variable T_AND_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_AND_EQUAL, expr => Call(ActionFn(143));)
+    //
+    pub fn __state42<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action143(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 43
+    //   expr_without_variable = variable T_CONCAT_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_CONCAT_EQUAL, expr => Call(ActionFn(141));)
+    //
+    pub fn __state43<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action141(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 44
+    //   expr_without_variable = variable T_DIV_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_DIV_EQUAL, expr => Call(ActionFn(140));)
+    //
+    pub fn __state44<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action140(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 45
+    //   expr_without_variable = variable T_MINUS_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_MINUS_EQUAL, expr => Call(ActionFn(137));)
+    //
+    pub fn __state45<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action137(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 46
+    //   expr_without_variable = variable T_MOD_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_MOD_EQUAL, expr => Call(ActionFn(142));)
+    //
+    pub fn __state46<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action142(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 47
+    //   expr_without_variable = variable T_MUL_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_MUL_EQUAL, expr => Call(ActionFn(138));)
+    //
+    pub fn __state47<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action138(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 48
+    //   expr_without_variable = variable T_OR_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_OR_EQUAL, expr => Call(ActionFn(144));)
+    //
+    pub fn __state48<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action144(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 49
     //   expr_without_variable = variable T_PLUS_EQUAL expr (*) [EOF]
     //
     //   EOF -> Reduce(expr_without_variable = variable, T_PLUS_EQUAL, expr => Call(ActionFn(136));)
     //
-    pub fn __state20<
+    pub fn __state49<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1273,14 +4693,180 @@ mod __parse__expr {
         }
     }
 
-    // State 21
+    // State 50
+    //   expr_without_variable = variable T_POW_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_POW_EQUAL, expr => Call(ActionFn(139));)
+    //
+    pub fn __state50<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action139(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 51
+    //   expr_without_variable = variable T_SL_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_SL_EQUAL, expr => Call(ActionFn(146));)
+    //
+    pub fn __state51<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action146(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 52
+    //   expr_without_variable = variable T_SR_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_SR_EQUAL, expr => Call(ActionFn(147));)
+    //
+    pub fn __state52<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action147(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 53
+    //   expr_without_variable = variable T_XOR_EQUAL expr (*) [EOF]
+    //
+    //   EOF -> Reduce(expr_without_variable = variable, T_XOR_EQUAL, expr => Call(ActionFn(145));)
+    //
+    pub fn __state53<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            None => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action145(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 54
     //   simple_variable = "${" expr "}" (*) [EOF]
+    //   simple_variable = "${" expr "}" (*) ["%="]
+    //   simple_variable = "${" expr "}" (*) ["&="]
+    //   simple_variable = "${" expr "}" (*) ["**="]
+    //   simple_variable = "${" expr "}" (*) ["*="]
     //   simple_variable = "${" expr "}" (*) ["+="]
+    //   simple_variable = "${" expr "}" (*) ["-="]
+    //   simple_variable = "${" expr "}" (*) [".="]
+    //   simple_variable = "${" expr "}" (*) ["/="]
+    //   simple_variable = "${" expr "}" (*) ["<<="]
+    //   simple_variable = "${" expr "}" (*) [">>="]
+    //   simple_variable = "${" expr "}" (*) ["^="]
+    //   simple_variable = "${" expr "}" (*) ["|="]
     //
     //   EOF -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "%=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "&=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "**=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "*=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "+=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "-=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ".=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "/=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "<<=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ">>=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "^=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "|=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //
-    pub fn __state21<
+    pub fn __state54<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1300,7 +4886,18 @@ mod __parse__expr {
         };
         match __lookahead {
             None |
-            Some((_, (18, _), _)) => {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
+            Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
                 let __sym2 = __sym2.take().unwrap();
@@ -1316,32 +4913,98 @@ mod __parse__expr {
         }
     }
 
-    // State 22
+    // State 55
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_AND_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
-    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
-    //   "$" -> Shift(S17)
-    //   "${" -> Shift(S18)
-    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S19)
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
     //
-    //   T_VARIABLE -> S12
-    //   expr -> S25
-    //   expr_without_variable -> S14
-    //   simple_variable -> S15
-    //   variable -> S16
-    pub fn __state22<
+    //   T_VARIABLE -> S34
+    //   expr -> S69
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state55<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1358,17 +5021,17 @@ mod __parse__expr {
             Some((_, (2, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state17(input, __lookbehind, __tokens, __sym2));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
             }
             Some((_, (3, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state18(input, __lookbehind, __tokens, __sym2));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
             }
             Some((_, (128, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state19(input, __lookbehind, __tokens, __sym2));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -1382,23 +5045,23 @@ mod __parse__expr {
             match __nt {
                 __Nonterminal::T__VARIABLE(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state25(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                    __result = try!(__state69(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state14(input, __lookbehind, __tokens, __lookahead, __sym2));
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state15(input, __lookbehind, __tokens, __lookahead, __sym2));
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
                 }
                 __Nonterminal::variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state16(input, __lookbehind, __tokens, __lookahead, __sym2));
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -1408,14 +5071,1774 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 23
+    // State 56
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_CONCAT_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S70
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state56<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state70(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 57
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_DIV_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S71
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state57<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state71(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 58
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MINUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S72
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state58<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state72(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 59
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MOD_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S73
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state59<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state73(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 60
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MUL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S74
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state60<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state74(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 61
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_OR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S75
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state61<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state75(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 62
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S76
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state62<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state76(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 63
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_POW_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S77
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state63<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state77(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 64
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S78
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state64<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state78(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 65
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S79
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state65<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state79(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 66
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_XOR_EQUAL (*) expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S39)
+    //   "${" -> Shift(S40)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S41)
+    //
+    //   T_VARIABLE -> S34
+    //   expr -> S80
+    //   expr_without_variable -> S36
+    //   simple_variable -> S37
+    //   variable -> S38
+    pub fn __state66<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state41(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state34(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state80(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state36(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state37(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state38(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 67
+    //   simple_variable = "$" simple_variable (*) ["%="]
+    //   simple_variable = "$" simple_variable (*) ["&="]
+    //   simple_variable = "$" simple_variable (*) ["**="]
+    //   simple_variable = "$" simple_variable (*) ["*="]
     //   simple_variable = "$" simple_variable (*) ["+="]
+    //   simple_variable = "$" simple_variable (*) ["-="]
+    //   simple_variable = "$" simple_variable (*) [".="]
+    //   simple_variable = "$" simple_variable (*) ["/="]
+    //   simple_variable = "$" simple_variable (*) ["<<="]
+    //   simple_variable = "$" simple_variable (*) [">>="]
+    //   simple_variable = "$" simple_variable (*) ["^="]
+    //   simple_variable = "$" simple_variable (*) ["|="]
     //   simple_variable = "$" simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "&=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "**=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "*=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "+=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "-=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ".=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "/=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "<<=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ">>=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "^=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "|=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "}" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //
-    pub fn __state23<
+    pub fn __state67<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1429,7 +6852,18 @@ mod __parse__expr {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -1445,13 +6879,24 @@ mod __parse__expr {
         }
     }
 
-    // State 24
+    // State 68
+    //   simple_variable = "${" expr (*) "}" ["%="]
+    //   simple_variable = "${" expr (*) "}" ["&="]
+    //   simple_variable = "${" expr (*) "}" ["**="]
+    //   simple_variable = "${" expr (*) "}" ["*="]
     //   simple_variable = "${" expr (*) "}" ["+="]
+    //   simple_variable = "${" expr (*) "}" ["-="]
+    //   simple_variable = "${" expr (*) "}" [".="]
+    //   simple_variable = "${" expr (*) "}" ["/="]
+    //   simple_variable = "${" expr (*) "}" ["<<="]
+    //   simple_variable = "${" expr (*) "}" [">>="]
+    //   simple_variable = "${" expr (*) "}" ["^="]
+    //   simple_variable = "${" expr (*) "}" ["|="]
     //   simple_variable = "${" expr (*) "}" ["}"]
     //
-    //   "}" -> Shift(S26)
+    //   "}" -> Shift(S81)
     //
-    pub fn __state24<
+    pub fn __state68<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1468,7 +6913,7 @@ mod __parse__expr {
             Some((_, (125, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state26(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
+                __result = try!(__state81(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -1480,12 +6925,264 @@ mod __parse__expr {
         return Ok(__result);
     }
 
-    // State 25
+    // State 69
+    //   expr_without_variable = variable T_AND_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_AND_EQUAL, expr => Call(ActionFn(143));)
+    //
+    pub fn __state69<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action143(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 70
+    //   expr_without_variable = variable T_CONCAT_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_CONCAT_EQUAL, expr => Call(ActionFn(141));)
+    //
+    pub fn __state70<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action141(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 71
+    //   expr_without_variable = variable T_DIV_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_DIV_EQUAL, expr => Call(ActionFn(140));)
+    //
+    pub fn __state71<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action140(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 72
+    //   expr_without_variable = variable T_MINUS_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MINUS_EQUAL, expr => Call(ActionFn(137));)
+    //
+    pub fn __state72<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action137(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 73
+    //   expr_without_variable = variable T_MOD_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MOD_EQUAL, expr => Call(ActionFn(142));)
+    //
+    pub fn __state73<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action142(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 74
+    //   expr_without_variable = variable T_MUL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MUL_EQUAL, expr => Call(ActionFn(138));)
+    //
+    pub fn __state74<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action138(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 75
+    //   expr_without_variable = variable T_OR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_OR_EQUAL, expr => Call(ActionFn(144));)
+    //
+    pub fn __state75<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action144(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 76
     //   expr_without_variable = variable T_PLUS_EQUAL expr (*) ["}"]
     //
     //   "}" -> Reduce(expr_without_variable = variable, T_PLUS_EQUAL, expr => Call(ActionFn(136));)
     //
-    pub fn __state25<
+    pub fn __state76<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1516,14 +7213,180 @@ mod __parse__expr {
         }
     }
 
-    // State 26
+    // State 77
+    //   expr_without_variable = variable T_POW_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_POW_EQUAL, expr => Call(ActionFn(139));)
+    //
+    pub fn __state77<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action139(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 78
+    //   expr_without_variable = variable T_SL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SL_EQUAL, expr => Call(ActionFn(146));)
+    //
+    pub fn __state78<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action146(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 79
+    //   expr_without_variable = variable T_SR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SR_EQUAL, expr => Call(ActionFn(147));)
+    //
+    pub fn __state79<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action147(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 80
+    //   expr_without_variable = variable T_XOR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_XOR_EQUAL, expr => Call(ActionFn(145));)
+    //
+    pub fn __state80<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action145(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 81
+    //   simple_variable = "${" expr "}" (*) ["%="]
+    //   simple_variable = "${" expr "}" (*) ["&="]
+    //   simple_variable = "${" expr "}" (*) ["**="]
+    //   simple_variable = "${" expr "}" (*) ["*="]
     //   simple_variable = "${" expr "}" (*) ["+="]
+    //   simple_variable = "${" expr "}" (*) ["-="]
+    //   simple_variable = "${" expr "}" (*) [".="]
+    //   simple_variable = "${" expr "}" (*) ["/="]
+    //   simple_variable = "${" expr "}" (*) ["<<="]
+    //   simple_variable = "${" expr "}" (*) [">>="]
+    //   simple_variable = "${" expr "}" (*) ["^="]
+    //   simple_variable = "${" expr "}" (*) ["|="]
     //   simple_variable = "${" expr "}" (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "&=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "**=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "*=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "+=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "-=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ".=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "/=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "<<=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ">>=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "^=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "|=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "}" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //
-    pub fn __state26<
+    pub fn __state81<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -1542,7 +7405,18 @@ mod __parse__expr {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -1929,19 +7803,85 @@ mod __parse__simple_variable {
     }
 
     // State 4
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //   simple_variable = "${" (*) expr "}" [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S12)
@@ -2094,10 +8034,32 @@ mod __parse__simple_variable {
     }
 
     // State 7
+    //   simple_variable = T_VARIABLE (*) ["%="]
+    //   simple_variable = T_VARIABLE (*) ["&="]
+    //   simple_variable = T_VARIABLE (*) ["**="]
+    //   simple_variable = T_VARIABLE (*) ["*="]
     //   simple_variable = T_VARIABLE (*) ["+="]
+    //   simple_variable = T_VARIABLE (*) ["-="]
+    //   simple_variable = T_VARIABLE (*) [".="]
+    //   simple_variable = T_VARIABLE (*) ["/="]
+    //   simple_variable = T_VARIABLE (*) ["<<="]
+    //   simple_variable = T_VARIABLE (*) [">>="]
+    //   simple_variable = T_VARIABLE (*) ["^="]
+    //   simple_variable = T_VARIABLE (*) ["|="]
     //   simple_variable = T_VARIABLE (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "&=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "**=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "*=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "+=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "-=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ".=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "/=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "<<=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ">>=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "^=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "|=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "}" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //
     pub fn __state7<
@@ -2113,7 +8075,18 @@ mod __parse__simple_variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action133(input, __sym0);
@@ -2195,10 +8168,32 @@ mod __parse__simple_variable {
     }
 
     // State 10
+    //   variable = simple_variable (*) ["%="]
+    //   variable = simple_variable (*) ["&="]
+    //   variable = simple_variable (*) ["**="]
+    //   variable = simple_variable (*) ["*="]
     //   variable = simple_variable (*) ["+="]
+    //   variable = simple_variable (*) ["-="]
+    //   variable = simple_variable (*) [".="]
+    //   variable = simple_variable (*) ["/="]
+    //   variable = simple_variable (*) ["<<="]
+    //   variable = simple_variable (*) [">>="]
+    //   variable = simple_variable (*) ["^="]
+    //   variable = simple_variable (*) ["|="]
     //   variable = simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "&=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "**=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "*=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "+=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "-=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ".=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "/=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "<<=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ">>=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "^=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "|=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "}" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //
     pub fn __state10<
@@ -2214,7 +8209,18 @@ mod __parse__simple_variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action130(input, __sym0);
@@ -2230,16 +8236,82 @@ mod __parse__simple_variable {
     }
 
     // State 11
+    //   T_AND_EQUAL = (*) "&=" ["$"]
+    //   T_AND_EQUAL = (*) "&=" ["${"]
+    //   T_AND_EQUAL = (*) "&=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_CONCAT_EQUAL = (*) ".=" ["$"]
+    //   T_CONCAT_EQUAL = (*) ".=" ["${"]
+    //   T_CONCAT_EQUAL = (*) ".=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_DIV_EQUAL = (*) "/=" ["$"]
+    //   T_DIV_EQUAL = (*) "/=" ["${"]
+    //   T_DIV_EQUAL = (*) "/=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MINUS_EQUAL = (*) "-=" ["$"]
+    //   T_MINUS_EQUAL = (*) "-=" ["${"]
+    //   T_MINUS_EQUAL = (*) "-=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MOD_EQUAL = (*) "%=" ["$"]
+    //   T_MOD_EQUAL = (*) "%=" ["${"]
+    //   T_MOD_EQUAL = (*) "%=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MUL_EQUAL = (*) "*=" ["$"]
+    //   T_MUL_EQUAL = (*) "*=" ["${"]
+    //   T_MUL_EQUAL = (*) "*=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_OR_EQUAL = (*) "|=" ["$"]
+    //   T_OR_EQUAL = (*) "|=" ["${"]
+    //   T_OR_EQUAL = (*) "|=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   T_PLUS_EQUAL = (*) "+=" ["$"]
     //   T_PLUS_EQUAL = (*) "+=" ["${"]
     //   T_PLUS_EQUAL = (*) "+=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_POW_EQUAL = (*) "**=" ["$"]
+    //   T_POW_EQUAL = (*) "**=" ["${"]
+    //   T_POW_EQUAL = (*) "**=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SL_EQUAL = (*) "<<=" ["$"]
+    //   T_SL_EQUAL = (*) "<<=" ["${"]
+    //   T_SL_EQUAL = (*) "<<=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SR_EQUAL = (*) ">>=" ["$"]
+    //   T_SR_EQUAL = (*) ">>=" ["${"]
+    //   T_SR_EQUAL = (*) ">>=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_XOR_EQUAL = (*) "^=" ["$"]
+    //   T_XOR_EQUAL = (*) "^=" ["${"]
+    //   T_XOR_EQUAL = (*) "^=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   expr = variable (*) ["}"]
+    //   expr_without_variable = variable (*) T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_OR_EQUAL expr ["}"]
     //   expr_without_variable = variable (*) T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_XOR_EQUAL expr ["}"]
     //
-    //   "+=" -> Shift(S17)
+    //   "%=" -> Shift(S28)
+    //   "&=" -> Shift(S29)
+    //   "**=" -> Shift(S30)
+    //   "*=" -> Shift(S31)
+    //   "+=" -> Shift(S32)
+    //   "-=" -> Shift(S33)
+    //   ".=" -> Shift(S34)
+    //   "/=" -> Shift(S35)
+    //   "<<=" -> Shift(S36)
+    //   ">>=" -> Shift(S37)
+    //   "^=" -> Shift(S38)
+    //   "|=" -> Shift(S39)
     //   "}" -> Reduce(expr = variable => Call(ActionFn(134));)
     //
-    //   T_PLUS_EQUAL -> S16
+    //   T_AND_EQUAL -> S16
+    //   T_CONCAT_EQUAL -> S17
+    //   T_DIV_EQUAL -> S18
+    //   T_MINUS_EQUAL -> S19
+    //   T_MOD_EQUAL -> S20
+    //   T_MUL_EQUAL -> S21
+    //   T_OR_EQUAL -> S22
+    //   T_PLUS_EQUAL -> S23
+    //   T_POW_EQUAL -> S24
+    //   T_SL_EQUAL -> S25
+    //   T_SR_EQUAL -> S26
+    //   T_XOR_EQUAL -> S27
     pub fn __state11<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -2253,10 +8325,65 @@ mod __parse__simple_variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state28(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (6, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state29(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (15, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state30(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (16, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state31(input, __lookbehind, __tokens, __sym1));
+            }
             Some((_, (18, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state17(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state32(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (20, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state33(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (23, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state34(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (24, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state35(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (27, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state36(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (35, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state37(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (38, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state38(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (123, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
@@ -2273,9 +8400,53 @@ mod __parse__simple_variable {
         while __sym0.is_some() {
             let (__lookbehind, __lookahead, __nt) = __result;
             match __nt {
-                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                __Nonterminal::T__AND__EQUAL(__nt) => {
                     let __sym1 = &mut Some(__nt);
                     __result = try!(__state16(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__CONCAT__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state17(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__DIV__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state18(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MINUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state19(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MOD__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MUL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state21(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__OR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state22(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state23(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__POW__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state24(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state25(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state26(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__XOR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state27(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -2286,15 +8457,70 @@ mod __parse__simple_variable {
     }
 
     // State 12
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = "$" (*) simple_variable ["%="]
+    //   simple_variable = "$" (*) simple_variable ["&="]
+    //   simple_variable = "$" (*) simple_variable ["**="]
+    //   simple_variable = "$" (*) simple_variable ["*="]
     //   simple_variable = "$" (*) simple_variable ["+="]
+    //   simple_variable = "$" (*) simple_variable ["-="]
+    //   simple_variable = "$" (*) simple_variable [".="]
+    //   simple_variable = "$" (*) simple_variable ["/="]
+    //   simple_variable = "$" (*) simple_variable ["<<="]
+    //   simple_variable = "$" (*) simple_variable [">>="]
+    //   simple_variable = "$" (*) simple_variable ["^="]
+    //   simple_variable = "$" (*) simple_variable ["|="]
     //   simple_variable = "$" (*) simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //
     //   "$" -> Shift(S12)
@@ -2302,7 +8528,7 @@ mod __parse__simple_variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
     //
     //   T_VARIABLE -> S7
-    //   simple_variable -> S18
+    //   simple_variable -> S40
     pub fn __state12<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -2351,7 +8577,7 @@ mod __parse__simple_variable {
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state18(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state40(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -2362,20 +8588,97 @@ mod __parse__simple_variable {
     }
 
     // State 13
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   simple_variable = "${" (*) expr "}" ["%="]
+    //   simple_variable = "${" (*) expr "}" ["&="]
+    //   simple_variable = "${" (*) expr "}" ["**="]
+    //   simple_variable = "${" (*) expr "}" ["*="]
     //   simple_variable = "${" (*) expr "}" ["+="]
+    //   simple_variable = "${" (*) expr "}" ["-="]
+    //   simple_variable = "${" (*) expr "}" [".="]
+    //   simple_variable = "${" (*) expr "}" ["/="]
+    //   simple_variable = "${" (*) expr "}" ["<<="]
+    //   simple_variable = "${" (*) expr "}" [">>="]
+    //   simple_variable = "${" (*) expr "}" ["^="]
+    //   simple_variable = "${" (*) expr "}" ["|="]
     //   simple_variable = "${" (*) expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S12)
@@ -2383,7 +8686,7 @@ mod __parse__simple_variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
     //
     //   T_VARIABLE -> S7
-    //   expr -> S19
+    //   expr -> S41
     //   expr_without_variable -> S9
     //   simple_variable -> S10
     //   variable -> S11
@@ -2435,7 +8738,7 @@ mod __parse__simple_variable {
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state19(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state41(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
@@ -2458,10 +8761,32 @@ mod __parse__simple_variable {
     }
 
     // State 14
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["%="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["&="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["**="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["*="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["+="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["-="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [".="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["/="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["<<="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [">>="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["^="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["|="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["}"]
     //
+    //   "%=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "&=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "**=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "*=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "+=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "-=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ".=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "/=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "<<=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ">>=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "^=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "|=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "}" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //
     pub fn __state14<
@@ -2481,7 +8806,18 @@ mod __parse__simple_variable {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action5(input, __sym0);
@@ -2537,19 +8873,85 @@ mod __parse__simple_variable {
     }
 
     // State 16
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_AND_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
-    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S12)
@@ -2557,7 +8959,7 @@ mod __parse__simple_variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
     //
     //   T_VARIABLE -> S7
-    //   expr -> S20
+    //   expr -> S42
     //   expr_without_variable -> S9
     //   simple_variable -> S10
     //   variable -> S11
@@ -2606,7 +9008,7 @@ mod __parse__simple_variable {
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                    __result = try!(__state42(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
@@ -2629,6 +9031,1912 @@ mod __parse__simple_variable {
     }
 
     // State 17
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_CONCAT_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S43
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state17<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state43(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 18
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_DIV_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S44
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state18<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state44(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 19
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MINUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S45
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state19<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state45(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 20
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MOD_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S46
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state20<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state46(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 21
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MUL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S47
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state21<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state47(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 22
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_OR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S48
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state22<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state48(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 23
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S49
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state23<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state49(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 24
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_POW_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S50
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state24<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state50(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 25
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S51
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state25<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state51(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 26
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S52
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state26<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state52(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 27
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_XOR_EQUAL (*) expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S12)
+    //   "${" -> Shift(S13)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S14)
+    //
+    //   T_VARIABLE -> S7
+    //   expr -> S53
+    //   expr_without_variable -> S9
+    //   simple_variable -> S10
+    //   variable -> S11
+    pub fn __state27<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state12(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state7(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state53(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state9(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 28
+    //   T_MOD_EQUAL = "%=" (*) ["$"]
+    //   T_MOD_EQUAL = "%=" (*) ["${"]
+    //   T_MOD_EQUAL = "%=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   "${" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //
+    pub fn __state28<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action22(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MOD__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 29
+    //   T_AND_EQUAL = "&=" (*) ["$"]
+    //   T_AND_EQUAL = "&=" (*) ["${"]
+    //   T_AND_EQUAL = "&=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   "${" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //
+    pub fn __state29<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action23(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__AND__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 30
+    //   T_POW_EQUAL = "**=" (*) ["$"]
+    //   T_POW_EQUAL = "**=" (*) ["${"]
+    //   T_POW_EQUAL = "**=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   "${" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //
+    pub fn __state30<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action129(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__POW__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 31
+    //   T_MUL_EQUAL = "*=" (*) ["$"]
+    //   T_MUL_EQUAL = "*=" (*) ["${"]
+    //   T_MUL_EQUAL = "*=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   "${" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //
+    pub fn __state31<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action19(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MUL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 32
     //   T_PLUS_EQUAL = "+=" (*) ["$"]
     //   T_PLUS_EQUAL = "+=" (*) ["${"]
     //   T_PLUS_EQUAL = "+=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
@@ -2637,7 +10945,7 @@ mod __parse__simple_variable {
     //   "${" -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //
-    pub fn __state17<
+    pub fn __state32<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -2670,14 +10978,330 @@ mod __parse__simple_variable {
         }
     }
 
-    // State 18
+    // State 33
+    //   T_MINUS_EQUAL = "-=" (*) ["$"]
+    //   T_MINUS_EQUAL = "-=" (*) ["${"]
+    //   T_MINUS_EQUAL = "-=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   "${" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //
+    pub fn __state33<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action18(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MINUS__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 34
+    //   T_CONCAT_EQUAL = ".=" (*) ["$"]
+    //   T_CONCAT_EQUAL = ".=" (*) ["${"]
+    //   T_CONCAT_EQUAL = ".=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   "${" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //
+    pub fn __state34<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action21(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__CONCAT__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 35
+    //   T_DIV_EQUAL = "/=" (*) ["$"]
+    //   T_DIV_EQUAL = "/=" (*) ["${"]
+    //   T_DIV_EQUAL = "/=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   "${" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //
+    pub fn __state35<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action20(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__DIV__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 36
+    //   T_SL_EQUAL = "<<=" (*) ["$"]
+    //   T_SL_EQUAL = "<<=" (*) ["${"]
+    //   T_SL_EQUAL = "<<=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   "${" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //
+    pub fn __state36<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action26(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 37
+    //   T_SR_EQUAL = ">>=" (*) ["$"]
+    //   T_SR_EQUAL = ">>=" (*) ["${"]
+    //   T_SR_EQUAL = ">>=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   "${" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //
+    pub fn __state37<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action27(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 38
+    //   T_XOR_EQUAL = "^=" (*) ["$"]
+    //   T_XOR_EQUAL = "^=" (*) ["${"]
+    //   T_XOR_EQUAL = "^=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   "${" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //
+    pub fn __state38<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action25(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__XOR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 39
+    //   T_OR_EQUAL = "|=" (*) ["$"]
+    //   T_OR_EQUAL = "|=" (*) ["${"]
+    //   T_OR_EQUAL = "|=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   "${" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //
+    pub fn __state39<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action24(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__OR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 40
+    //   simple_variable = "$" simple_variable (*) ["%="]
+    //   simple_variable = "$" simple_variable (*) ["&="]
+    //   simple_variable = "$" simple_variable (*) ["**="]
+    //   simple_variable = "$" simple_variable (*) ["*="]
     //   simple_variable = "$" simple_variable (*) ["+="]
+    //   simple_variable = "$" simple_variable (*) ["-="]
+    //   simple_variable = "$" simple_variable (*) [".="]
+    //   simple_variable = "$" simple_variable (*) ["/="]
+    //   simple_variable = "$" simple_variable (*) ["<<="]
+    //   simple_variable = "$" simple_variable (*) [">>="]
+    //   simple_variable = "$" simple_variable (*) ["^="]
+    //   simple_variable = "$" simple_variable (*) ["|="]
     //   simple_variable = "$" simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "&=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "**=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "*=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "+=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "-=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ".=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "/=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "<<=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ">>=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "^=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "|=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "}" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //
-    pub fn __state18<
+    pub fn __state40<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -2691,7 +11315,18 @@ mod __parse__simple_variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -2707,13 +11342,24 @@ mod __parse__simple_variable {
         }
     }
 
-    // State 19
+    // State 41
+    //   simple_variable = "${" expr (*) "}" ["%="]
+    //   simple_variable = "${" expr (*) "}" ["&="]
+    //   simple_variable = "${" expr (*) "}" ["**="]
+    //   simple_variable = "${" expr (*) "}" ["*="]
     //   simple_variable = "${" expr (*) "}" ["+="]
+    //   simple_variable = "${" expr (*) "}" ["-="]
+    //   simple_variable = "${" expr (*) "}" [".="]
+    //   simple_variable = "${" expr (*) "}" ["/="]
+    //   simple_variable = "${" expr (*) "}" ["<<="]
+    //   simple_variable = "${" expr (*) "}" [">>="]
+    //   simple_variable = "${" expr (*) "}" ["^="]
+    //   simple_variable = "${" expr (*) "}" ["|="]
     //   simple_variable = "${" expr (*) "}" ["}"]
     //
-    //   "}" -> Shift(S21)
+    //   "}" -> Shift(S54)
     //
-    pub fn __state19<
+    pub fn __state41<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -2730,7 +11376,7 @@ mod __parse__simple_variable {
             Some((_, (125, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state21(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
+                __result = try!(__state54(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -2742,12 +11388,264 @@ mod __parse__simple_variable {
         return Ok(__result);
     }
 
-    // State 20
+    // State 42
+    //   expr_without_variable = variable T_AND_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_AND_EQUAL, expr => Call(ActionFn(143));)
+    //
+    pub fn __state42<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action143(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 43
+    //   expr_without_variable = variable T_CONCAT_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_CONCAT_EQUAL, expr => Call(ActionFn(141));)
+    //
+    pub fn __state43<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action141(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 44
+    //   expr_without_variable = variable T_DIV_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_DIV_EQUAL, expr => Call(ActionFn(140));)
+    //
+    pub fn __state44<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action140(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 45
+    //   expr_without_variable = variable T_MINUS_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MINUS_EQUAL, expr => Call(ActionFn(137));)
+    //
+    pub fn __state45<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action137(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 46
+    //   expr_without_variable = variable T_MOD_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MOD_EQUAL, expr => Call(ActionFn(142));)
+    //
+    pub fn __state46<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action142(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 47
+    //   expr_without_variable = variable T_MUL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MUL_EQUAL, expr => Call(ActionFn(138));)
+    //
+    pub fn __state47<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action138(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 48
+    //   expr_without_variable = variable T_OR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_OR_EQUAL, expr => Call(ActionFn(144));)
+    //
+    pub fn __state48<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action144(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 49
     //   expr_without_variable = variable T_PLUS_EQUAL expr (*) ["}"]
     //
     //   "}" -> Reduce(expr_without_variable = variable, T_PLUS_EQUAL, expr => Call(ActionFn(136));)
     //
-    pub fn __state20<
+    pub fn __state49<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -2778,14 +11676,180 @@ mod __parse__simple_variable {
         }
     }
 
-    // State 21
+    // State 50
+    //   expr_without_variable = variable T_POW_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_POW_EQUAL, expr => Call(ActionFn(139));)
+    //
+    pub fn __state50<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action139(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 51
+    //   expr_without_variable = variable T_SL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SL_EQUAL, expr => Call(ActionFn(146));)
+    //
+    pub fn __state51<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action146(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 52
+    //   expr_without_variable = variable T_SR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SR_EQUAL, expr => Call(ActionFn(147));)
+    //
+    pub fn __state52<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action147(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 53
+    //   expr_without_variable = variable T_XOR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_XOR_EQUAL, expr => Call(ActionFn(145));)
+    //
+    pub fn __state53<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action145(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 54
+    //   simple_variable = "${" expr "}" (*) ["%="]
+    //   simple_variable = "${" expr "}" (*) ["&="]
+    //   simple_variable = "${" expr "}" (*) ["**="]
+    //   simple_variable = "${" expr "}" (*) ["*="]
     //   simple_variable = "${" expr "}" (*) ["+="]
+    //   simple_variable = "${" expr "}" (*) ["-="]
+    //   simple_variable = "${" expr "}" (*) [".="]
+    //   simple_variable = "${" expr "}" (*) ["/="]
+    //   simple_variable = "${" expr "}" (*) ["<<="]
+    //   simple_variable = "${" expr "}" (*) [">>="]
+    //   simple_variable = "${" expr "}" (*) ["^="]
+    //   simple_variable = "${" expr "}" (*) ["|="]
     //   simple_variable = "${" expr "}" (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "&=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "**=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "*=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "+=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "-=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ".=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "/=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "<<=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ">>=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "^=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "|=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "}" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //
-    pub fn __state21<
+    pub fn __state54<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -2804,7 +11868,18 @@ mod __parse__simple_variable {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -3229,19 +12304,85 @@ mod __parse__variable {
     }
 
     // State 5
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //   simple_variable = "${" (*) expr "}" [EOF]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S13)
@@ -3394,10 +12535,32 @@ mod __parse__variable {
     }
 
     // State 8
+    //   simple_variable = T_VARIABLE (*) ["%="]
+    //   simple_variable = T_VARIABLE (*) ["&="]
+    //   simple_variable = T_VARIABLE (*) ["**="]
+    //   simple_variable = T_VARIABLE (*) ["*="]
     //   simple_variable = T_VARIABLE (*) ["+="]
+    //   simple_variable = T_VARIABLE (*) ["-="]
+    //   simple_variable = T_VARIABLE (*) [".="]
+    //   simple_variable = T_VARIABLE (*) ["/="]
+    //   simple_variable = T_VARIABLE (*) ["<<="]
+    //   simple_variable = T_VARIABLE (*) [">>="]
+    //   simple_variable = T_VARIABLE (*) ["^="]
+    //   simple_variable = T_VARIABLE (*) ["|="]
     //   simple_variable = T_VARIABLE (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "&=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "**=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "*=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "+=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "-=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ".=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "/=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "<<=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   ">>=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "^=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
+    //   "|=" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //   "}" -> Reduce(simple_variable = T_VARIABLE => Call(ActionFn(133));)
     //
     pub fn __state8<
@@ -3413,7 +12576,18 @@ mod __parse__variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action133(input, __sym0);
@@ -3495,10 +12669,32 @@ mod __parse__variable {
     }
 
     // State 11
+    //   variable = simple_variable (*) ["%="]
+    //   variable = simple_variable (*) ["&="]
+    //   variable = simple_variable (*) ["**="]
+    //   variable = simple_variable (*) ["*="]
     //   variable = simple_variable (*) ["+="]
+    //   variable = simple_variable (*) ["-="]
+    //   variable = simple_variable (*) [".="]
+    //   variable = simple_variable (*) ["/="]
+    //   variable = simple_variable (*) ["<<="]
+    //   variable = simple_variable (*) [">>="]
+    //   variable = simple_variable (*) ["^="]
+    //   variable = simple_variable (*) ["|="]
     //   variable = simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "&=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "**=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "*=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "+=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "-=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ".=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "/=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "<<=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   ">>=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "^=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
+    //   "|=" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //   "}" -> Reduce(variable = simple_variable => Call(ActionFn(130));)
     //
     pub fn __state11<
@@ -3514,7 +12710,18 @@ mod __parse__variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action130(input, __sym0);
@@ -3530,16 +12737,82 @@ mod __parse__variable {
     }
 
     // State 12
+    //   T_AND_EQUAL = (*) "&=" ["$"]
+    //   T_AND_EQUAL = (*) "&=" ["${"]
+    //   T_AND_EQUAL = (*) "&=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_CONCAT_EQUAL = (*) ".=" ["$"]
+    //   T_CONCAT_EQUAL = (*) ".=" ["${"]
+    //   T_CONCAT_EQUAL = (*) ".=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_DIV_EQUAL = (*) "/=" ["$"]
+    //   T_DIV_EQUAL = (*) "/=" ["${"]
+    //   T_DIV_EQUAL = (*) "/=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MINUS_EQUAL = (*) "-=" ["$"]
+    //   T_MINUS_EQUAL = (*) "-=" ["${"]
+    //   T_MINUS_EQUAL = (*) "-=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MOD_EQUAL = (*) "%=" ["$"]
+    //   T_MOD_EQUAL = (*) "%=" ["${"]
+    //   T_MOD_EQUAL = (*) "%=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_MUL_EQUAL = (*) "*=" ["$"]
+    //   T_MUL_EQUAL = (*) "*=" ["${"]
+    //   T_MUL_EQUAL = (*) "*=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_OR_EQUAL = (*) "|=" ["$"]
+    //   T_OR_EQUAL = (*) "|=" ["${"]
+    //   T_OR_EQUAL = (*) "|=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   T_PLUS_EQUAL = (*) "+=" ["$"]
     //   T_PLUS_EQUAL = (*) "+=" ["${"]
     //   T_PLUS_EQUAL = (*) "+=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_POW_EQUAL = (*) "**=" ["$"]
+    //   T_POW_EQUAL = (*) "**=" ["${"]
+    //   T_POW_EQUAL = (*) "**=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SL_EQUAL = (*) "<<=" ["$"]
+    //   T_SL_EQUAL = (*) "<<=" ["${"]
+    //   T_SL_EQUAL = (*) "<<=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_SR_EQUAL = (*) ">>=" ["$"]
+    //   T_SR_EQUAL = (*) ">>=" ["${"]
+    //   T_SR_EQUAL = (*) ">>=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //   T_XOR_EQUAL = (*) "^=" ["$"]
+    //   T_XOR_EQUAL = (*) "^=" ["${"]
+    //   T_XOR_EQUAL = (*) "^=" [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
     //   expr = variable (*) ["}"]
+    //   expr_without_variable = variable (*) T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_OR_EQUAL expr ["}"]
     //   expr_without_variable = variable (*) T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable (*) T_XOR_EQUAL expr ["}"]
     //
-    //   "+=" -> Shift(S18)
+    //   "%=" -> Shift(S29)
+    //   "&=" -> Shift(S30)
+    //   "**=" -> Shift(S31)
+    //   "*=" -> Shift(S32)
+    //   "+=" -> Shift(S33)
+    //   "-=" -> Shift(S34)
+    //   ".=" -> Shift(S35)
+    //   "/=" -> Shift(S36)
+    //   "<<=" -> Shift(S37)
+    //   ">>=" -> Shift(S38)
+    //   "^=" -> Shift(S39)
+    //   "|=" -> Shift(S40)
     //   "}" -> Reduce(expr = variable => Call(ActionFn(134));)
     //
-    //   T_PLUS_EQUAL -> S17
+    //   T_AND_EQUAL -> S17
+    //   T_CONCAT_EQUAL -> S18
+    //   T_DIV_EQUAL -> S19
+    //   T_MINUS_EQUAL -> S20
+    //   T_MOD_EQUAL -> S21
+    //   T_MUL_EQUAL -> S22
+    //   T_OR_EQUAL -> S23
+    //   T_PLUS_EQUAL -> S24
+    //   T_POW_EQUAL -> S25
+    //   T_SL_EQUAL -> S26
+    //   T_SR_EQUAL -> S27
+    //   T_XOR_EQUAL -> S28
     pub fn __state12<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -3553,10 +12826,65 @@ mod __parse__variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state29(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (6, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state30(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (15, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state31(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (16, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state32(input, __lookbehind, __tokens, __sym1));
+            }
             Some((_, (18, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym1 = &mut Some((__tok0));
-                __result = try!(__state18(input, __lookbehind, __tokens, __sym1));
+                __result = try!(__state33(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (20, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state34(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (23, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state35(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (24, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state36(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (27, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state37(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (35, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state38(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (38, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state39(input, __lookbehind, __tokens, __sym1));
+            }
+            Some((_, (123, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym1 = &mut Some((__tok0));
+                __result = try!(__state40(input, __lookbehind, __tokens, __sym1));
             }
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
@@ -3573,9 +12901,53 @@ mod __parse__variable {
         while __sym0.is_some() {
             let (__lookbehind, __lookahead, __nt) = __result;
             match __nt {
-                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                __Nonterminal::T__AND__EQUAL(__nt) => {
                     let __sym1 = &mut Some(__nt);
                     __result = try!(__state17(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__CONCAT__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state18(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__DIV__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state19(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MINUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MOD__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state21(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__MUL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state22(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__OR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state23(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__PLUS__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state24(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__POW__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state25(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SL__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state26(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__SR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state27(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                }
+                __Nonterminal::T__XOR__EQUAL(__nt) => {
+                    let __sym1 = &mut Some(__nt);
+                    __result = try!(__state28(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -3586,15 +12958,70 @@ mod __parse__variable {
     }
 
     // State 13
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = "$" (*) simple_variable ["%="]
+    //   simple_variable = "$" (*) simple_variable ["&="]
+    //   simple_variable = "$" (*) simple_variable ["**="]
+    //   simple_variable = "$" (*) simple_variable ["*="]
     //   simple_variable = "$" (*) simple_variable ["+="]
+    //   simple_variable = "$" (*) simple_variable ["-="]
+    //   simple_variable = "$" (*) simple_variable [".="]
+    //   simple_variable = "$" (*) simple_variable ["/="]
+    //   simple_variable = "$" (*) simple_variable ["<<="]
+    //   simple_variable = "$" (*) simple_variable [">>="]
+    //   simple_variable = "$" (*) simple_variable ["^="]
+    //   simple_variable = "$" (*) simple_variable ["|="]
     //   simple_variable = "$" (*) simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
     //
     //   "$" -> Shift(S13)
@@ -3602,7 +13029,7 @@ mod __parse__variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
     //
     //   T_VARIABLE -> S8
-    //   simple_variable -> S19
+    //   simple_variable -> S41
     pub fn __state13<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
@@ -3651,7 +13078,7 @@ mod __parse__variable {
                 }
                 __Nonterminal::simple__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state19(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state41(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 _ => {
                     return Ok((__lookbehind, __lookahead, __nt));
@@ -3662,20 +13089,97 @@ mod __parse__variable {
     }
 
     // State 14
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   simple_variable = "${" (*) expr "}" ["%="]
+    //   simple_variable = "${" (*) expr "}" ["&="]
+    //   simple_variable = "${" (*) expr "}" ["**="]
+    //   simple_variable = "${" (*) expr "}" ["*="]
     //   simple_variable = "${" (*) expr "}" ["+="]
+    //   simple_variable = "${" (*) expr "}" ["-="]
+    //   simple_variable = "${" (*) expr "}" [".="]
+    //   simple_variable = "${" (*) expr "}" ["/="]
+    //   simple_variable = "${" (*) expr "}" ["<<="]
+    //   simple_variable = "${" (*) expr "}" [">>="]
+    //   simple_variable = "${" (*) expr "}" ["^="]
+    //   simple_variable = "${" (*) expr "}" ["|="]
     //   simple_variable = "${" (*) expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S13)
@@ -3683,7 +13187,7 @@ mod __parse__variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
     //
     //   T_VARIABLE -> S8
-    //   expr -> S20
+    //   expr -> S42
     //   expr_without_variable -> S10
     //   simple_variable -> S11
     //   variable -> S12
@@ -3735,7 +13239,7 @@ mod __parse__variable {
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym1 = &mut Some(__nt);
-                    __result = try!(__state20(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
+                    __result = try!(__state42(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym1 = &mut Some(__nt);
@@ -3758,10 +13262,32 @@ mod __parse__variable {
     }
 
     // State 15
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["%="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["&="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["**="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["*="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["+="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["-="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [".="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["/="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["<<="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) [">>="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["^="]
+    //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["|="]
     //   T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# (*) ["}"]
     //
+    //   "%=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "&=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "**=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "*=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "+=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "-=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ".=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "/=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "<<=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   ">>=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "^=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
+    //   "|=" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //   "}" -> Reduce(T_VARIABLE = r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# => Call(ActionFn(5));)
     //
     pub fn __state15<
@@ -3781,7 +13307,18 @@ mod __parse__variable {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __nt = super::__action5(input, __sym0);
@@ -3837,19 +13374,85 @@ mod __parse__variable {
     }
 
     // State 17
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
     //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
     //   expr = (*) expr_without_variable ["}"]
     //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_AND_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
     //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
-    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
     //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
     //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
     //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
     //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
     //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
     //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
     //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
     //   variable = (*) simple_variable ["}"]
     //
     //   "$" -> Shift(S13)
@@ -3857,7 +13460,7 @@ mod __parse__variable {
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
     //
     //   T_VARIABLE -> S8
-    //   expr -> S21
+    //   expr -> S43
     //   expr_without_variable -> S10
     //   simple_variable -> S11
     //   variable -> S12
@@ -3906,7 +13509,7 @@ mod __parse__variable {
                 }
                 __Nonterminal::expr(__nt) => {
                     let __sym2 = &mut Some(__nt);
-                    __result = try!(__state21(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                    __result = try!(__state43(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
                 }
                 __Nonterminal::expr__without__variable(__nt) => {
                     let __sym2 = &mut Some(__nt);
@@ -3929,6 +13532,1912 @@ mod __parse__variable {
     }
 
     // State 18
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_CONCAT_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S44
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state18<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state44(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 19
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_DIV_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S45
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state19<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state45(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 20
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MINUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S46
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state20<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state46(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 21
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MOD_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S47
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state21<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state47(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 22
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_MUL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S48
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state22<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state48(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 23
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_OR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S49
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state23<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state49(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 24
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_PLUS_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S50
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state24<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state50(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 25
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_POW_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S51
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state25<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state51(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 26
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SL_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S52
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state26<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state52(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 27
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_SR_EQUAL (*) expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S53
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state27<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state53(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 28
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["%="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["&="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["**="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["*="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["+="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["-="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [".="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["/="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["<<="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# [">>="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["^="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["|="]
+    //   T_VARIABLE = (*) r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# ["}"]
+    //   expr = (*) expr_without_variable ["}"]
+    //   expr = (*) variable ["}"]
+    //   expr_without_variable = (*) variable T_AND_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_CONCAT_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_DIV_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MINUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MOD_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_MUL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_OR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_PLUS_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_POW_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SL_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_SR_EQUAL expr ["}"]
+    //   expr_without_variable = (*) variable T_XOR_EQUAL expr ["}"]
+    //   expr_without_variable = variable T_XOR_EQUAL (*) expr ["}"]
+    //   simple_variable = (*) T_VARIABLE ["%="]
+    //   simple_variable = (*) T_VARIABLE ["&="]
+    //   simple_variable = (*) T_VARIABLE ["**="]
+    //   simple_variable = (*) T_VARIABLE ["*="]
+    //   simple_variable = (*) T_VARIABLE ["+="]
+    //   simple_variable = (*) T_VARIABLE ["-="]
+    //   simple_variable = (*) T_VARIABLE [".="]
+    //   simple_variable = (*) T_VARIABLE ["/="]
+    //   simple_variable = (*) T_VARIABLE ["<<="]
+    //   simple_variable = (*) T_VARIABLE [">>="]
+    //   simple_variable = (*) T_VARIABLE ["^="]
+    //   simple_variable = (*) T_VARIABLE ["|="]
+    //   simple_variable = (*) T_VARIABLE ["}"]
+    //   simple_variable = (*) "$" simple_variable ["%="]
+    //   simple_variable = (*) "$" simple_variable ["&="]
+    //   simple_variable = (*) "$" simple_variable ["**="]
+    //   simple_variable = (*) "$" simple_variable ["*="]
+    //   simple_variable = (*) "$" simple_variable ["+="]
+    //   simple_variable = (*) "$" simple_variable ["-="]
+    //   simple_variable = (*) "$" simple_variable [".="]
+    //   simple_variable = (*) "$" simple_variable ["/="]
+    //   simple_variable = (*) "$" simple_variable ["<<="]
+    //   simple_variable = (*) "$" simple_variable [">>="]
+    //   simple_variable = (*) "$" simple_variable ["^="]
+    //   simple_variable = (*) "$" simple_variable ["|="]
+    //   simple_variable = (*) "$" simple_variable ["}"]
+    //   simple_variable = (*) "${" expr "}" ["%="]
+    //   simple_variable = (*) "${" expr "}" ["&="]
+    //   simple_variable = (*) "${" expr "}" ["**="]
+    //   simple_variable = (*) "${" expr "}" ["*="]
+    //   simple_variable = (*) "${" expr "}" ["+="]
+    //   simple_variable = (*) "${" expr "}" ["-="]
+    //   simple_variable = (*) "${" expr "}" [".="]
+    //   simple_variable = (*) "${" expr "}" ["/="]
+    //   simple_variable = (*) "${" expr "}" ["<<="]
+    //   simple_variable = (*) "${" expr "}" [">>="]
+    //   simple_variable = (*) "${" expr "}" ["^="]
+    //   simple_variable = (*) "${" expr "}" ["|="]
+    //   simple_variable = (*) "${" expr "}" ["}"]
+    //   variable = (*) simple_variable ["%="]
+    //   variable = (*) simple_variable ["&="]
+    //   variable = (*) simple_variable ["**="]
+    //   variable = (*) simple_variable ["*="]
+    //   variable = (*) simple_variable ["+="]
+    //   variable = (*) simple_variable ["-="]
+    //   variable = (*) simple_variable [".="]
+    //   variable = (*) simple_variable ["/="]
+    //   variable = (*) simple_variable ["<<="]
+    //   variable = (*) simple_variable [">>="]
+    //   variable = (*) simple_variable ["^="]
+    //   variable = (*) simple_variable ["|="]
+    //   variable = (*) simple_variable ["}"]
+    //
+    //   "$" -> Shift(S13)
+    //   "${" -> Shift(S14)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Shift(S15)
+    //
+    //   T_VARIABLE -> S8
+    //   expr -> S54
+    //   expr_without_variable -> S10
+    //   simple_variable -> S11
+    //   variable -> S12
+    pub fn __state28<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (2, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state13(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (3, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state14(input, __lookbehind, __tokens, __sym2));
+            }
+            Some((_, (128, __tok0), __loc)) => {
+                let mut __lookbehind = Some(__loc);
+                let mut __sym2 = &mut Some((__tok0));
+                __result = try!(__state15(input, __lookbehind, __tokens, __sym2));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+        while __sym1.is_some() {
+            let (__lookbehind, __lookahead, __nt) = __result;
+            match __nt {
+                __Nonterminal::T__VARIABLE(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state8(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::expr(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state54(input, __lookbehind, __tokens, __lookahead, __sym0, __sym1, __sym2));
+                }
+                __Nonterminal::expr__without__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state10(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::simple__variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state11(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                __Nonterminal::variable(__nt) => {
+                    let __sym2 = &mut Some(__nt);
+                    __result = try!(__state12(input, __lookbehind, __tokens, __lookahead, __sym2));
+                }
+                _ => {
+                    return Ok((__lookbehind, __lookahead, __nt));
+                }
+            }
+        }
+        return Ok(__result);
+    }
+
+    // State 29
+    //   T_MOD_EQUAL = "%=" (*) ["$"]
+    //   T_MOD_EQUAL = "%=" (*) ["${"]
+    //   T_MOD_EQUAL = "%=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   "${" -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MOD_EQUAL = "%=" => Call(ActionFn(22));)
+    //
+    pub fn __state29<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action22(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MOD__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 30
+    //   T_AND_EQUAL = "&=" (*) ["$"]
+    //   T_AND_EQUAL = "&=" (*) ["${"]
+    //   T_AND_EQUAL = "&=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   "${" -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_AND_EQUAL = "&=" => Call(ActionFn(23));)
+    //
+    pub fn __state30<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action23(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__AND__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 31
+    //   T_POW_EQUAL = "**=" (*) ["$"]
+    //   T_POW_EQUAL = "**=" (*) ["${"]
+    //   T_POW_EQUAL = "**=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   "${" -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_POW_EQUAL = "**=" => Call(ActionFn(129));)
+    //
+    pub fn __state31<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action129(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__POW__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 32
+    //   T_MUL_EQUAL = "*=" (*) ["$"]
+    //   T_MUL_EQUAL = "*=" (*) ["${"]
+    //   T_MUL_EQUAL = "*=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   "${" -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MUL_EQUAL = "*=" => Call(ActionFn(19));)
+    //
+    pub fn __state32<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action19(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MUL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 33
     //   T_PLUS_EQUAL = "+=" (*) ["$"]
     //   T_PLUS_EQUAL = "+=" (*) ["${"]
     //   T_PLUS_EQUAL = "+=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
@@ -3937,7 +15446,7 @@ mod __parse__variable {
     //   "${" -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_PLUS_EQUAL = "+=" => Call(ActionFn(17));)
     //
-    pub fn __state18<
+    pub fn __state33<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -3970,14 +15479,330 @@ mod __parse__variable {
         }
     }
 
-    // State 19
+    // State 34
+    //   T_MINUS_EQUAL = "-=" (*) ["$"]
+    //   T_MINUS_EQUAL = "-=" (*) ["${"]
+    //   T_MINUS_EQUAL = "-=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   "${" -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_MINUS_EQUAL = "-=" => Call(ActionFn(18));)
+    //
+    pub fn __state34<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action18(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__MINUS__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 35
+    //   T_CONCAT_EQUAL = ".=" (*) ["$"]
+    //   T_CONCAT_EQUAL = ".=" (*) ["${"]
+    //   T_CONCAT_EQUAL = ".=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   "${" -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_CONCAT_EQUAL = ".=" => Call(ActionFn(21));)
+    //
+    pub fn __state35<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action21(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__CONCAT__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 36
+    //   T_DIV_EQUAL = "/=" (*) ["$"]
+    //   T_DIV_EQUAL = "/=" (*) ["${"]
+    //   T_DIV_EQUAL = "/=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   "${" -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_DIV_EQUAL = "/=" => Call(ActionFn(20));)
+    //
+    pub fn __state36<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action20(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__DIV__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 37
+    //   T_SL_EQUAL = "<<=" (*) ["$"]
+    //   T_SL_EQUAL = "<<=" (*) ["${"]
+    //   T_SL_EQUAL = "<<=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   "${" -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SL_EQUAL = "<<=" => Call(ActionFn(26));)
+    //
+    pub fn __state37<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action26(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SL__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 38
+    //   T_SR_EQUAL = ">>=" (*) ["$"]
+    //   T_SR_EQUAL = ">>=" (*) ["${"]
+    //   T_SR_EQUAL = ">>=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   "${" -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_SR_EQUAL = ">>=" => Call(ActionFn(27));)
+    //
+    pub fn __state38<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action27(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__SR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 39
+    //   T_XOR_EQUAL = "^=" (*) ["$"]
+    //   T_XOR_EQUAL = "^=" (*) ["${"]
+    //   T_XOR_EQUAL = "^=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   "${" -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_XOR_EQUAL = "^=" => Call(ActionFn(25));)
+    //
+    pub fn __state39<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action25(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__XOR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 40
+    //   T_OR_EQUAL = "|=" (*) ["$"]
+    //   T_OR_EQUAL = "|=" (*) ["${"]
+    //   T_OR_EQUAL = "|=" (*) [r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"#]
+    //
+    //   "$" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   "${" -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //   r#"\\$([a-zA-Z\\_]+)([0-9a-zA-Z\\_]*)"# -> Reduce(T_OR_EQUAL = "|=" => Call(ActionFn(24));)
+    //
+    pub fn __state40<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __sym0: &mut Option<&'input str>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        let __lookahead = match __tokens.next() {
+            Some(Ok(v)) => Some(v),
+            None => None,
+            Some(Err(e)) => return Err(e),
+        };
+        match __lookahead {
+            Some((_, (2, _), _)) |
+            Some((_, (3, _), _)) |
+            Some((_, (128, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __nt = super::__action24(input, __sym0);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::T__OR__EQUAL(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 41
+    //   simple_variable = "$" simple_variable (*) ["%="]
+    //   simple_variable = "$" simple_variable (*) ["&="]
+    //   simple_variable = "$" simple_variable (*) ["**="]
+    //   simple_variable = "$" simple_variable (*) ["*="]
     //   simple_variable = "$" simple_variable (*) ["+="]
+    //   simple_variable = "$" simple_variable (*) ["-="]
+    //   simple_variable = "$" simple_variable (*) [".="]
+    //   simple_variable = "$" simple_variable (*) ["/="]
+    //   simple_variable = "$" simple_variable (*) ["<<="]
+    //   simple_variable = "$" simple_variable (*) [">>="]
+    //   simple_variable = "$" simple_variable (*) ["^="]
+    //   simple_variable = "$" simple_variable (*) ["|="]
     //   simple_variable = "$" simple_variable (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "&=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "**=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "*=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "+=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "-=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ".=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "/=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "<<=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   ">>=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "^=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
+    //   "|=" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //   "}" -> Reduce(simple_variable = "$", simple_variable => Call(ActionFn(132));)
     //
-    pub fn __state19<
+    pub fn __state41<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -3991,7 +15816,18 @@ mod __parse__variable {
     {
         let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -4007,13 +15843,24 @@ mod __parse__variable {
         }
     }
 
-    // State 20
+    // State 42
+    //   simple_variable = "${" expr (*) "}" ["%="]
+    //   simple_variable = "${" expr (*) "}" ["&="]
+    //   simple_variable = "${" expr (*) "}" ["**="]
+    //   simple_variable = "${" expr (*) "}" ["*="]
     //   simple_variable = "${" expr (*) "}" ["+="]
+    //   simple_variable = "${" expr (*) "}" ["-="]
+    //   simple_variable = "${" expr (*) "}" [".="]
+    //   simple_variable = "${" expr (*) "}" ["/="]
+    //   simple_variable = "${" expr (*) "}" ["<<="]
+    //   simple_variable = "${" expr (*) "}" [">>="]
+    //   simple_variable = "${" expr (*) "}" ["^="]
+    //   simple_variable = "${" expr (*) "}" ["|="]
     //   simple_variable = "${" expr (*) "}" ["}"]
     //
-    //   "}" -> Shift(S22)
+    //   "}" -> Shift(S55)
     //
-    pub fn __state20<
+    pub fn __state42<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -4030,7 +15877,7 @@ mod __parse__variable {
             Some((_, (125, __tok0), __loc)) => {
                 let mut __lookbehind = Some(__loc);
                 let mut __sym2 = &mut Some((__tok0));
-                __result = try!(__state22(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
+                __result = try!(__state55(input, __lookbehind, __tokens, __sym0, __sym1, __sym2));
             }
             _ => {
                 return Err(__ParseError::UnrecognizedToken {
@@ -4042,12 +15889,264 @@ mod __parse__variable {
         return Ok(__result);
     }
 
-    // State 21
+    // State 43
+    //   expr_without_variable = variable T_AND_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_AND_EQUAL, expr => Call(ActionFn(143));)
+    //
+    pub fn __state43<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action143(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 44
+    //   expr_without_variable = variable T_CONCAT_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_CONCAT_EQUAL, expr => Call(ActionFn(141));)
+    //
+    pub fn __state44<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action141(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 45
+    //   expr_without_variable = variable T_DIV_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_DIV_EQUAL, expr => Call(ActionFn(140));)
+    //
+    pub fn __state45<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action140(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 46
+    //   expr_without_variable = variable T_MINUS_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MINUS_EQUAL, expr => Call(ActionFn(137));)
+    //
+    pub fn __state46<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action137(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 47
+    //   expr_without_variable = variable T_MOD_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MOD_EQUAL, expr => Call(ActionFn(142));)
+    //
+    pub fn __state47<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action142(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 48
+    //   expr_without_variable = variable T_MUL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_MUL_EQUAL, expr => Call(ActionFn(138));)
+    //
+    pub fn __state48<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action138(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 49
+    //   expr_without_variable = variable T_OR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_OR_EQUAL, expr => Call(ActionFn(144));)
+    //
+    pub fn __state49<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action144(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 50
     //   expr_without_variable = variable T_PLUS_EQUAL expr (*) ["}"]
     //
     //   "}" -> Reduce(expr_without_variable = variable, T_PLUS_EQUAL, expr => Call(ActionFn(136));)
     //
-    pub fn __state21<
+    pub fn __state50<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -4078,14 +16177,180 @@ mod __parse__variable {
         }
     }
 
-    // State 22
+    // State 51
+    //   expr_without_variable = variable T_POW_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_POW_EQUAL, expr => Call(ActionFn(139));)
+    //
+    pub fn __state51<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action139(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 52
+    //   expr_without_variable = variable T_SL_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SL_EQUAL, expr => Call(ActionFn(146));)
+    //
+    pub fn __state52<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action146(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 53
+    //   expr_without_variable = variable T_SR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_SR_EQUAL, expr => Call(ActionFn(147));)
+    //
+    pub fn __state53<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action147(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 54
+    //   expr_without_variable = variable T_XOR_EQUAL expr (*) ["}"]
+    //
+    //   "}" -> Reduce(expr_without_variable = variable, T_XOR_EQUAL, expr => Call(ActionFn(145));)
+    //
+    pub fn __state54<
+        'input,
+        __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
+    >(
+        input: &'input str,
+        __lookbehind: Option<usize>,
+        __tokens: &mut __TOKENS,
+        __lookahead: Option<(usize, (usize, &'input str), usize)>,
+        __sym0: &mut Option<Box<Variable>>,
+        __sym1: &mut Option<&'input str>,
+        __sym2: &mut Option<Box<Expression>>,
+    ) -> Result<(Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>), __ParseError<usize,(usize, &'input str),()>>
+    {
+        let mut __result: (Option<usize>, Option<(usize, (usize, &'input str), usize)>, __Nonterminal<'input>);
+        match __lookahead {
+            Some((_, (125, _), _)) => {
+                let __sym0 = __sym0.take().unwrap();
+                let __sym1 = __sym1.take().unwrap();
+                let __sym2 = __sym2.take().unwrap();
+                let __nt = super::__action145(input, __sym0, __sym1, __sym2);
+                return Ok((__lookbehind, __lookahead, __Nonterminal::expr__without__variable(__nt)));
+            }
+            _ => {
+                return Err(__ParseError::UnrecognizedToken {
+                    token: __lookahead,
+                    expected: vec![],
+                });
+            }
+        }
+    }
+
+    // State 55
+    //   simple_variable = "${" expr "}" (*) ["%="]
+    //   simple_variable = "${" expr "}" (*) ["&="]
+    //   simple_variable = "${" expr "}" (*) ["**="]
+    //   simple_variable = "${" expr "}" (*) ["*="]
     //   simple_variable = "${" expr "}" (*) ["+="]
+    //   simple_variable = "${" expr "}" (*) ["-="]
+    //   simple_variable = "${" expr "}" (*) [".="]
+    //   simple_variable = "${" expr "}" (*) ["/="]
+    //   simple_variable = "${" expr "}" (*) ["<<="]
+    //   simple_variable = "${" expr "}" (*) [">>="]
+    //   simple_variable = "${" expr "}" (*) ["^="]
+    //   simple_variable = "${" expr "}" (*) ["|="]
     //   simple_variable = "${" expr "}" (*) ["}"]
     //
+    //   "%=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "&=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "**=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "*=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "+=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "-=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ".=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "/=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "<<=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   ">>=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "^=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
+    //   "|=" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //   "}" -> Reduce(simple_variable = "${", expr, "}" => Call(ActionFn(131));)
     //
-    pub fn __state22<
+    pub fn __state55<
         'input,
         __TOKENS: Iterator<Item=Result<(usize, (usize, &'input str), usize),__ParseError<usize,(usize, &'input str),()>>>,
     >(
@@ -4104,7 +16369,18 @@ mod __parse__variable {
             Some(Err(e)) => return Err(e),
         };
         match __lookahead {
+            Some((_, (4, _), _)) |
+            Some((_, (6, _), _)) |
+            Some((_, (15, _), _)) |
+            Some((_, (16, _), _)) |
             Some((_, (18, _), _)) |
+            Some((_, (20, _), _)) |
+            Some((_, (23, _), _)) |
+            Some((_, (24, _), _)) |
+            Some((_, (27, _), _)) |
+            Some((_, (35, _), _)) |
+            Some((_, (38, _), _)) |
+            Some((_, (123, _), _)) |
             Some((_, (125, _), _)) => {
                 let __sym0 = __sym0.take().unwrap();
                 let __sym1 = __sym1.take().unwrap();
@@ -13225,22 +25501,143 @@ pub fn __action136<
 >(
     input: &'input str,
     v1: Box<Variable>,
-    a: &'input str,
+    op: &'input str,
     expr: Box<Expression>,
 ) -> Box<Expression>
 {
-    { Box::new(Expression::AssignOp { op: Box::new("+=".to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
-//	|	variable T_MINUS_EQUAL expr
-//	|	variable T_MUL_EQUAL expr
-//	|	variable T_POW_EQUAL expr
-//	|	variable T_DIV_EQUAL expr
-//	|	variable T_CONCAT_EQUAL expr
-//	|	variable T_MOD_EQUAL expr
-//	|	variable T_AND_EQUAL expr
-//	|	variable T_OR_EQUAL expr
-//	|	variable T_XOR_EQUAL expr
-//	|	variable T_SL_EQUAL expr
-//	|	variable T_SR_EQUAL expr
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action137<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action138<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action139<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action140<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action141<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action142<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action143<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action144<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action145<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action146<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
+}
+
+pub fn __action147<
+    'input,
+>(
+    input: &'input str,
+    v1: Box<Variable>,
+    op: &'input str,
+    expr: Box<Expression>,
+) -> Box<Expression>
+{
+    { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
 //	|	variable T_INC { $$ = zend_ast_create(ZEND_AST_POST_INC, $1); }
 //	|	T_INC variable { $$ = zend_ast_create(ZEND_AST_PRE_INC, $2); }
 //	|	variable T_DEC { $$ = zend_ast_create(ZEND_AST_POST_DEC, $1); }

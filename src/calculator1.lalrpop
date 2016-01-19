@@ -165,18 +165,18 @@ expr_without_variable : Box<Expression> = {
 //    |	variable '=' expr
 //    |	variable '=' '&' variable
 //	|	T_CLONE expr { $$ = zend_ast_create(ZEND_AST_CLONE, $2); }
-	<v1:variable> <a:T_PLUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new("+=".to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
-//	|	variable T_MINUS_EQUAL expr
-//	|	variable T_MUL_EQUAL expr
-//	|	variable T_POW_EQUAL expr
-//	|	variable T_DIV_EQUAL expr
-//	|	variable T_CONCAT_EQUAL expr
-//	|	variable T_MOD_EQUAL expr
-//	|	variable T_AND_EQUAL expr
-//	|	variable T_OR_EQUAL expr
-//	|	variable T_XOR_EQUAL expr
-//	|	variable T_SL_EQUAL expr
-//	|	variable T_SR_EQUAL expr
+	<v1:variable> <op:T_PLUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_MINUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_MUL_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_POW_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_DIV_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_CONCAT_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_MOD_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_AND_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_OR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_XOR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_SL_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) },
+    <v1:variable> <op:T_SR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: Box::new(op.to_string()), expr_left: Box::new(Expression::Variable(v1)), expr_right: Box::new(Expression::Expression(expr)) }) }
 //	|	variable T_INC { $$ = zend_ast_create(ZEND_AST_POST_INC, $1); }
 //	|	T_INC variable { $$ = zend_ast_create(ZEND_AST_PRE_INC, $2); }
 //	|	variable T_DEC { $$ = zend_ast_create(ZEND_AST_POST_DEC, $1); }
