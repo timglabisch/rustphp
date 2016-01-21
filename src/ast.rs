@@ -27,5 +27,6 @@ pub enum Expression {
     Expression(Box<Expression>),
     Increment(Box<Variable>, bool), // flag defines right / left hand.
     Decrement(Box<Variable>, bool), // flag defines right / left hand.
-    AssignOp { op: String, var: Box<Variable>, expr_right: Box<Expression> }
+    AssignOp { op: String, var: Box<Variable>, expr_right: Box<Expression> },
+    ExpressionOp {op: String, expr_left: Box<Expression>, expr_right: Box<Expression> }
 }

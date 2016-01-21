@@ -14,6 +14,7 @@ fn main() {
     ];
 
     for v in valid_simple_variable {
+        println!("{}", v);
         assert!(calculator1::parse_simple_variable(v).is_ok());
     }
 
@@ -39,6 +40,9 @@ fn main() {
         assert!(calculator1::parse_expr(v).is_ok());
     }
 
-    println!("{:?}", calculator1::parse_expr("$v++"));
+    println!("{:?}", calculator1::parse_expr("$v || $v"));
+    println!("{:?}", calculator1::parse_expr("$v || ${$v}"));
+    println!("{:?}", calculator1::parse_expr("${$v} || ${$v}"));
+    println!("{:?}", calculator1::parse_expr("${$v} || ${$v} || ${$v}"));
 
 }
