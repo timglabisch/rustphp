@@ -188,7 +188,9 @@ pub expr : Box<Expression> = {
     <expr_left:expr1> <op:T_SL> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
     <expr_left:expr1> <op:T_SR> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
 
-
+    // right
+    //<expr_left:expr> <op:T_POW> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
+    //<expr_left:expr> <op:T_IS_IDENTICAL> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
 };
 
 pub expr1 : Box<Expression> = {
@@ -208,8 +210,6 @@ pub expr1 : Box<Expression> = {
 //	|	'-' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_MINUS, $2); }
     <op: "!"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
     <op: "~"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) }
-    //<expr_left:expr1> <op:"lala"> <expr_right:expr> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
-    //<expr_left:expr> <op:T_IS_IDENTICAL> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
 
 
 //	|	expr T_IS_IDENTICAL expr
