@@ -186,7 +186,9 @@ pub expr : Box<Expression> = {
     <expr_left:expr1> <op:"/"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
     <expr_left:expr1> <op:"%"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
     <expr_left:expr1> <op:T_SL> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:T_SR> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) }
+    <expr_left:expr1> <op:T_SR> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+
+
 };
 
 pub expr1 : Box<Expression> = {
@@ -201,17 +203,15 @@ pub expr1 : Box<Expression> = {
 	<v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
     <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
     <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
-    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) }
-
-
-//	|	expr T_POW expr	{ $$ = zend_ast_create_binary_op(ZEND_POW, $1, $3); } // RIGHT
-
-
-
+    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) },
 //	|	'+' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_PLUS, $2); }
 //	|	'-' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_MINUS, $2); }
-//	|	'!' expr { $$ = zend_ast_create_ex(ZEND_AST_UNARY_OP, ZEND_BOOL_NOT, $2); }
-//	|	'~' expr { $$ = zend_ast_create_ex(ZEND_AST_UNARY_OP, ZEND_BW_NOT, $2); }
+    <op: "!"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <op: "~"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) }
+    //<expr_left:expr1> <op:"lala"> <expr_right:expr> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
+    //<expr_left:expr> <op:T_IS_IDENTICAL> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
+
+
 //	|	expr T_IS_IDENTICAL expr
 //	|	expr T_IS_NOT_IDENTICAL expr
 //	|	expr T_IS_EQUAL expr
