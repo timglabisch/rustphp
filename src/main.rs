@@ -45,5 +45,4 @@ fn main() {
     println!("{:?}", calculator1::parse_expr("${$v} || ${$v}"));
     println!("{:?}", calculator1::parse_expr("${$v} || ${$v} || ${$v}"));
     println!("{:?}", calculator1::parse_expr("!${$v} || !!${$v} || ${$v}"));
-
 }

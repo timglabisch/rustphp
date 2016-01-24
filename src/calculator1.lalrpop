@@ -154,46 +154,66 @@ pub simple_variable : Box<Variable> = {
     <var:T_VARIABLE> => { Box::new(Variable::Identifier(var)) }
 };
 
-
 pub expr : Box<Expression> = {
-    <expr:expr1> => { expr },
-
-    // %left
-    <expr_left:expr1> <op:T_BOOLEAN_OR> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <v1:variable> <op:T_PLUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_MINUS_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_MUL_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_POW_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_DIV_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_CONCAT_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_MOD_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_AND_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_OR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_XOR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_SL_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_SR_EQUAL> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_BOOLEAN_AND> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_LOGICAL_OR> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_LOGICAL_AND> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <v1:variable> <op:T_LOGICAL_XOR> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <expr_left:expr1> <op:"|"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"&"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"^"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"."> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"+"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"-"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"*"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"/"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:"%"> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:T_SL> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-    <expr_left:expr1> <op:T_SR> <expr_right:expr> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
-
-    // right
-    //<expr_left:expr> <op:T_POW> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
-    //<expr_left:expr> <op:T_IS_IDENTICAL> <expr_right:expr1> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) }
+    <v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
+    <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
+    <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
+    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) },
+    <v1:variable> <op:T_PLUS_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_MINUS_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_MUL_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_POW_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_DIV_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_CONCAT_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_MOD_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_AND_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_OR_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_XOR_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_SL_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_SR_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_BOOLEAN_AND> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_LOGICAL_OR> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_LOGICAL_AND> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:T_LOGICAL_XOR> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <op: "!"> <expr:expr0> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <op: "~"> <expr:expr0> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <expr:expr0> => { expr }
 };
 
-pub expr1 : Box<Expression> = {
+expr0 : Box<Expression> = {
+    <expr_left:expr0> <op:T_BOOLEAN_OR> <expr_right:expr1> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr:expr1> => { expr }
+};
+
+
+expr1 : Box<Expression> = {
+    <expr_left:expr1> <op:"|"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"&"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"^"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"."> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"+"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"-"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"*"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"/"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:"%"> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:T_SL> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    <expr_left:expr1> <op:T_SR> <expr_right:expr2> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
+    expr2 => <>
+};
+
+expr2 : Box<Expression> = {
+    <expr_left:expr2> <op:T_POW> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_IDENTICAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    expr3 => <>
+};
+
+expr3 : Box<Expression> = {
+    <v1:variable> => { Box::new(Expression::Variable(v1)) }
+};
+
+
+
+pub exprsadfasdf : Box<Expression> = {
 
 // !!!!  expr_without_variable
 
@@ -201,15 +221,10 @@ pub expr1 : Box<Expression> = {
 //    |	variable '=' expr
 //    |	variable '=' '&' variable
 //	|	T_CLONE expr { $$ = zend_ast_create(ZEND_AST_CLONE, $2); }
-    <v1:variable> => { Box::new(Expression::Variable(v1)) },
-	<v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
-    <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
-    <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
-    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) },
+
 //	|	'+' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_PLUS, $2); }
 //	|	'-' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_MINUS, $2); }
-    <op: "!"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
-    <op: "~"> <expr:expr1> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) }
+
 
 
 //	|	expr T_IS_IDENTICAL expr
