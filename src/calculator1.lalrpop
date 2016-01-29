@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use ast::{If, Expression, Block, Variable};
+use ast::{If, Expression, Block, Variable, ClassNameReference};
 
 grammar;
 
@@ -12,6 +12,7 @@ T_NUMBER : String = {
 
 
 T_VARIABLE : String = { <s:r"\$([a-zA-Z\_]+)([0-9a-zA-Z\_]*)"> => s.to_string() };
+T_STATIC : String = { <s:r"\[a-zA-Z0-9\_\/\\\]+"> => s.to_string() };
 
 T_INCLUDE = { "include" };
 T_INCLUDE_ONCE = { "include_once" };
@@ -91,7 +92,7 @@ T_THROW = { "throw" };
 T_USE = { "use" };
 T_INSTEADOF = { "insteadof" };
 T_GLOBAL = { "global" };
-T_STATIC = { "static" };
+//T_STATIC = { "static" };
 T_ABSTRACT = { "abstract" };
 T_FINAL = { "final" };
 T_PRIVATE = { "private" };
@@ -155,10 +156,8 @@ pub simple_variable : Box<Variable> = {
 };
 
 pub expr : Box<Expression> = {
-    <v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
-    <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
-    <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
-    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) },
+    <v1:variable> <op:"="> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
+    <v1:variable> <op:"=&"> <expr:expr> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_PLUS_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_MINUS_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_MUL_EQUAL> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
@@ -175,12 +174,15 @@ pub expr : Box<Expression> = {
     <v1:variable> <op:T_LOGICAL_OR> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_LOGICAL_AND> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
     <v1:variable> <op:T_LOGICAL_XOR> <expr:expr0> => { Box::new(Expression::AssignOp { op: op.to_string(), var: v1, expr_right: expr }) },
-    <op: "!"> <expr:expr0> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
-    <op: "~"> <expr:expr0> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <expr:expr0> <op:T_INSTANCEOF> <class_name_reference:class_name_reference> => { Box::new(Expression::Instanceof { class_name_reference: class_name_reference, expr: expr }) },
+    <expr:expr0>  <a:"?"> <expr_if:expr0>  <b:":"> <expr_else:expr0> => { Box::new(Expression::Conditional { expr: expr, expr_if: Box::new(Some(expr_if)), expr_else: expr_else }) },
+    <expr:expr0>  <a:"?"> <b:":"> <expr_else:expr0> => { Box::new(Expression::Conditional { expr: expr, expr_if: Box::new(None), expr_else: expr_else }) },
     <expr:expr0> => { expr }
 };
 
 expr0 : Box<Expression> = {
+    <op:T_CLONE> <expr:expr1> => { Box::new(Expression::CloneOp { expr: expr }) },
+    new_expr => <>,
     <expr_left:expr0> <op:T_BOOLEAN_OR> <expr_right:expr1> => { Box::new(Expression::ExpressionOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right }) },
     <expr:expr1> => { expr }
 };
@@ -204,12 +206,52 @@ expr1 : Box<Expression> = {
 expr2 : Box<Expression> = {
     <expr_left:expr2> <op:T_POW> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
     <expr_left:expr2> <op:T_IS_IDENTICAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_NOT_IDENTICAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_EQUAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_NOT_EQUAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:"<"> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_SMALLER_OR_EQUAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:">"> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_IS_GREATER_OR_EQUAL> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
+    <expr_left:expr2> <op:T_SPACESHIP> <expr_right:expr3> => { Box::new(Expression::BinaryOp { op: op.to_string(), expr_left: expr_left, expr_right: expr_right}) },
     expr3 => <>
 };
 
 expr3 : Box<Expression> = {
+    <v1:variable> <op:T_INC> => { Box::new(Expression::Increment(v1, true)) },
+    <v1:variable> <op:T_DEC> => { Box::new(Expression::Decrement(v1, true)) },
+    <op:T_INC> <v1:variable> => { Box::new(Expression::Increment(v1, false)) },
+    <op:T_DEC> <v1:variable> => { Box::new(Expression::Decrement(v1, false)) },
+    <op:"!"> <expr:expr3> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <op:"~"> <expr:expr3> => { Box::new(Expression::UnaryOp { op: op.to_string(), expr: expr}) },
+    <op:T_INT_CAST> <expr:expr3> => { Box::new(Expression::CastInt(expr)) },
+    <op:T_DOUBLE_CAST> <expr:expr3> => { Box::new(Expression::CastDouble(expr)) },
+    <op:T_STRING_CAST> <expr:expr3> => { Box::new(Expression::CastString(expr)) },
+    <op:T_ARRAY_CAST> <expr:expr3> => { Box::new(Expression::CastArray(expr)) },
+    <op:T_OBJECT_CAST> <expr:expr3> => { Box::new(Expression::CastObject(expr)) },
+    <op:T_BOOL_CAST> <expr:expr3> => { Box::new(Expression::CastBool(expr)) },
+    <op:T_UNSET_CAST> <expr:expr3> => { Box::new(Expression::CastUnset(expr)) },
+    <a:"("> <expr:expr> <b:")"> => { Box::new(Expression::Parentness(expr)) },
     <v1:variable> => { Box::new(Expression::Variable(v1)) }
 };
+
+class_name_reference : Box<ClassNameReference> = {
+    // todo ...
+    name => { Box::new(ClassNameReference::Identifier(<>)) }
+};
+
+name : String = {
+    // todo ...
+    T_STATIC => <>
+};
+
+new_expr : Box<Expression> = {
+    // todo
+    <a:T_NEW> <class_name_reference:class_name_reference> => { Box::new(Expression::New(class_name_reference)) }
+    // T_NEW class_name_reference ctor_arguments
+    //<a:T_NEW> anonymous_class
+};
+
 
 
 
@@ -218,38 +260,15 @@ pub exprsadfasdf : Box<Expression> = {
 // !!!!  expr_without_variable
 
 //    <"list"> <"("> assignment_list <")"> = expr,
-//    |	variable '=' expr
-//    |	variable '=' '&' variable
-//	|	T_CLONE expr { $$ = zend_ast_create(ZEND_AST_CLONE, $2); }
 
 //	|	'+' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_PLUS, $2); }
 //	|	'-' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_MINUS, $2); }
 
 
-
-//	|	expr T_IS_IDENTICAL expr
-//	|	expr T_IS_NOT_IDENTICAL expr
-//	|	expr T_IS_EQUAL expr
-//	|	expr T_IS_NOT_EQUAL expr
-//	|	expr '<' expr
-//	|	expr T_IS_SMALLER_OR_EQUAL expr
-//	|	expr '>' expr
-//	|	expr T_IS_GREATER_OR_EQUAL expr
-//	|	expr T_SPACESHIP expr
-//	|	expr T_INSTANCEOF class_name_reference
-//	|	'(' expr ')' { $$ = $2; }
-//	|	new_expr { $$ = $1; }
 //	|	expr '?' expr ':' expr
 //	|	expr '?' ':' expr
 //	|	expr T_COALESCE expr
 //	|	internal_functions_in_yacc { $$ = $1; }
-//	|	T_INT_CAST expr		{ $$ = zend_ast_create_cast(IS_LONG, $2); }
-//	|	T_DOUBLE_CAST expr	{ $$ = zend_ast_create_cast(IS_DOUBLE, $2); }
-//	|	T_STRING_CAST expr	{ $$ = zend_ast_create_cast(IS_STRING, $2); }
-//	|	T_ARRAY_CAST expr	{ $$ = zend_ast_create_cast(IS_ARRAY, $2); }
-//	|	T_OBJECT_CAST expr	{ $$ = zend_ast_create_cast(IS_OBJECT, $2); }
-//	|	T_BOOL_CAST expr	{ $$ = zend_ast_create_cast(_IS_BOOL, $2); }
-//	|	T_UNSET_CAST expr	{ $$ = zend_ast_create_cast(IS_NULL, $2); }
 //	|	T_EXIT exit_expr	{ $$ = zend_ast_create(ZEND_AST_EXIT, $2); }
 //	|	'@' expr			{ $$ = zend_ast_create(ZEND_AST_SILENCE, $2); }
 //	|	scalar { $$ = $1; }

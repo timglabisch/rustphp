@@ -44,5 +44,28 @@ fn main() {
     println!("{:?}", calculator1::parse_expr("$v || ${$v}"));
     println!("{:?}", calculator1::parse_expr("${$v} || ${$v}"));
     println!("{:?}", calculator1::parse_expr("${$v} || ${$v} || ${$v}"));
-    println!("{:?}", calculator1::parse_expr("!${$v} || !!${$v} || ${$v}"));
+    println!("{:?}", calculator1::parse_expr("!${$v}"));
+    println!("{:?}", calculator1::parse_expr("clone ${$v}"));
+    println!("{:?}", calculator1::parse_expr("$foo = ${$v}"));
+    println!("{:?}", calculator1::parse_expr("$a  === $b"));
+    println!("{:?}", calculator1::parse_expr("$a == $b"));
+    println!("{:?}", calculator1::parse_expr("$a !== $b"));
+    println!("{:?}", calculator1::parse_expr("$a != $b"));
+    println!("{:?}", calculator1::parse_expr("(int)$b"));
+    println!("{:?}", calculator1::parse_expr("(float)$b"));
+    println!("{:?}", calculator1::parse_expr("(string)$b"));
+    println!("{:?}", calculator1::parse_expr("(array)$b"));
+    println!("{:?}", calculator1::parse_expr("(object)$b"));
+    println!("{:?}", calculator1::parse_expr("(bool)$b"));
+    println!("{:?}", calculator1::parse_expr("(unset)$b"));
+
+
+    println!("{:?}", calculator1::parse_expr("$b < $b"));
+    println!("{:?}", calculator1::parse_expr("$b <= $b"));
+    println!("{:?}", calculator1::parse_expr("$b > $b"));
+    println!("{:?}", calculator1::parse_expr("$b >= $b"));
+    println!("{:?}", calculator1::parse_expr("($b)"));
+    println!("{:?}", calculator1::parse_expr("($b) == ($b + $c)"));
+    println!("{:?}", calculator1::parse_expr("$b instanceof foo"));
+    println!("{:?}", calculator1::parse_expr("new foo"));
 }
